@@ -32,6 +32,7 @@ final class Core extends Helpers\Singleton {
 		// Elements
 		add_filter('admin_footer_text', [$factory->elements(), 'footerText']);
 		add_action('admin_init', [$factory->elements(), 'WPORGShortcutLinks']);
+		add_action('admin_init', [$factory->elements(), 'LinkManagerMenu']);
 
 		// Dashboard
 		add_action('admin_init', [$factory->dashboard(), 'quickDraft']);

@@ -53,4 +53,50 @@ final class Elements extends Helpers\Singleton {
 
 
 
+	/**
+	 * Removes the Link Manager menu item, enabled it or disabled
+	 * This behaviour is controlled in wp_options table record link_manager_enabled (values 0 or 1)
+	 */
+	public function LinkManagerMenu() {
+
+		// Last minute check
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP_LINK_MANAGER_MENU')) {
+			return;
+		}
+
+		// Globals
+		global $submenu;
+
+		// Check first the submenu (fast method)
+		if (empty($submenu) || !is_array($submenu) || !isset($submenu['link-manager.php'])) {
+			return;
+		}
+
+		// Remove submenus
+		unset($submenu['link-manager.php']);
+
+		// Check menu
+		global $menu;
+		if (empty($menu) || !is_array($menu)) {
+			return;
+		}
+
+		// Find the Links item in main menu
+		foreach ($menu as $index => $data) {
+
+			// Check data
+			if (empty($data) || !is_array($data)) {
+				continue;
+			}
+
+			// Check links handler
+			if (!empty($data[1]) && 'manage_links' == $data[1]) {
+				unset($menu[$index]);
+				return;
+			}
+		}
+	}
+
+
+
 }
