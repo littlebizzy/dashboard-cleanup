@@ -38,7 +38,7 @@ final class Core extends Helpers\Singleton {
 		add_action('admin_init', [$factory->dashboard(), 'eventsAndNews']);
 
 		// WooCommerce
-		add_action('admin_init', [$factory->woocommerce(), 'connectStore']);
+		add_filter('woocommerce_helper_suppress_connect_notice', [$factory->woocommerce(), 'connectStore']);
 		add_filter('woocommerce_show_admin_notice', [$factory->woocommerce(), 'productsBlock'], 10, 2);
 	}
 

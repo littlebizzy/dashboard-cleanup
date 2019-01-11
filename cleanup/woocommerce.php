@@ -19,15 +19,15 @@ final class Woocommerce extends Helpers\Singleton {
 	/**
 	 * Removes the 'Connect your store' WC admin notice
 	 */
-	public function connectStore() {
+	public function connectStore($default) {
 
 		// Last minute check
 		if (!$this->plugin->enabled('DASHBOARD_CLEANUP_WOOCOMMERCE_CONNECT_STORE')) {
-			return;
+			return $default;
 		}
 
 		// Done
-		add_filter( 'woocommerce_helper_suppress_connect_notice', '__return_true' );
+		return true;
 	}
 
 
