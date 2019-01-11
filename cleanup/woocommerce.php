@@ -35,12 +35,20 @@ final class Woocommerce extends Helpers\Singleton {
 	/**
 	 * Removes the 'Products Block' WC admin notice
 	 */
-	public function productsBlock() {
+	public function productsBlock($default, $notice) {
+
+		// Check proper notice
+		if ('wootenberg' != $notice) {
+			return $notice;
+		}
 
 		// Last minute check
 		if (!$this->plugin->enabled('DASHBOARD_CLEANUP_WOOCOMMERCE_PRODUCTS_BLOCK')) {
-			return;
+			return $notice;
 		}
+
+		// Done
+		return false;
 	}
 
 
