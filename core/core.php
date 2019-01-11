@@ -33,6 +33,7 @@ final class Core extends Helpers\Singleton {
 		add_filter('admin_footer_text', [$factory->elements(), 	'footerText']);
 		add_action('admin_init', 		[$factory->dashboard(), 'quickDraft']);
 		add_action('admin_init', 		[$factory->dashboard(), 'welcomePanel']);
+		add_action('admin_init', 		[$factory->dashboard(), 'eventsAndNews']);
 	}
 
 

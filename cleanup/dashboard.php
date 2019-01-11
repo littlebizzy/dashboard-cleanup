@@ -48,4 +48,20 @@ final class Dashboard extends Helpers\Singleton {
 
 
 
+	/**
+	 * Removes the 'Events and News' widget
+	 */
+	public function eventsAndNews() {
+
+		// Last minute check
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP_EVENTS_AND_NEWS')) {
+			return;
+		}
+
+		// Done
+		remove_meta_box('dashboard_primary', 'dashboard', 'normal');
+	}
+
+
+
 }
