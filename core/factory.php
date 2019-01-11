@@ -35,4 +35,13 @@ class Factory extends Helpers\Factory {
 
 
 
+	/**
+	 * Cleanup Woocommerce object
+	 */
+	protected function createWoocommerce() {
+		return Cleanup\Woocommerce::instance($this->plugin);
+	}
+
+
+
 }
