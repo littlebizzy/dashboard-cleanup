@@ -99,4 +99,32 @@ final class Elements extends Helpers\Singleton {
 
 
 
+	/**
+	 * Removes Featured and Favorites tab, and set Popular as the default tab
+	 */
+	public function addPluginTabs($tabs) {
+
+		// Last minute check
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP_ADD_PLUGIN_TABS')) {
+			return $tabs;
+		}
+
+		// Check tabs value
+		if (!empty($tabs) && is_array($tabs)) {
+			unset($tabs['featured']);
+			unset($tabs['favorites']);
+		}
+
+		// Set Popular as default
+		if (empty($_GET['tab'])) {
+			global $tab;
+			$tab = 'popular';
+		}
+
+		// Done
+		return $tabs;
+	}
+
+
+
 }
