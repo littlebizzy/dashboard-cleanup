@@ -66,4 +66,26 @@ class Plugin {
 
 
 
+	/**
+	 * Check functionality enabled based on custom constant
+	 */
+	public function enabled($name, $default = true, $enabled = true) {
+		return defined($name)? (constant($name) === $enabled) : $default;
+	}
+
+
+
+	/**
+	 * Access to the context object
+	 */
+	public function context() {
+		static $context;
+		if (!isset($context)) {
+			$context = new Context;
+		}
+		return $context;
+	}
+
+
+
 }
