@@ -17,6 +17,22 @@ final class Dashboard extends Helpers\Singleton {
 
 
 	/**
+	 * Removes the WP welcome panel
+	 */
+	public function welcomePanel() {
+
+		// Last minute check
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP_WELCOME_TO_WORDPRESS')) {
+			return;
+		}
+
+		// Done
+		remove_action('welcome_panel', 'wp_welcome_panel');
+	}
+
+
+
+	/**
 	 * Removes the 'Quick Draft' widget
 	 */
 	public function quickDraft() {
