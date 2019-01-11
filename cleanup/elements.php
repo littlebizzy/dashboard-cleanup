@@ -37,4 +37,20 @@ final class Elements extends Helpers\Singleton {
 
 
 
+	/**
+	 * Removes the WP.org logo and shortcut links (top left of the screen)
+	 */
+	public function WPORGShortcutLinks() {
+
+		// Last minute check
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP_WP_ORG_SHORTCUT_LINKS')) {
+			return;
+		}
+
+		// Done
+		remove_action('admin_bar_menu', 'wp_admin_bar_wp_menu');
+	}
+
+
+
 }
