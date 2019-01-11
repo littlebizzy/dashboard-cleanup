@@ -21,11 +21,16 @@ final class Core extends Helpers\Singleton {
 	 */
 	protected function onConstruct() {
 
-		// Factory object
-		$this->plugin->factory = new Factory($this->plugin);
+		// Chec admin area
+		if (!$this->plugin->context()->admin()) {
+			return;
+		}
 
-		// Attempt to run an object
-		//$this->plugin->factory->myObject()
+		// Factory object
+		$factory = new Factory($this->plugin);
+
+		// Cleanup filters
+		add_filter('admin_footer_text', [$factory->elements(), 'footerText']);
 	}
 
 

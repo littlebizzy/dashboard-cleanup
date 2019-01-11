@@ -5,6 +5,7 @@ namespace LittleBizzy\DashboardCleanup\Core;
 
 // Aliased namespaces
 use \LittleBizzy\DashboardCleanup\Helpers;
+use \LittleBizzy\DashboardCleanup\Cleanup;
 
 /**
  * Object Factory class
@@ -17,28 +18,19 @@ class Factory extends Helpers\Factory {
 
 
 	/**
-	 * A core object
+	 * Cleanup Elements object
 	 */
-	protected function createCoreObject() {
-		return new MyCoreObject;
+	protected function createElements() {
+		return Cleanup\Elements::instance($this->plugin);
 	}
 
 
 
 	/**
-	 * A singleton object instance
+	 * Cleanup Dashboard object
 	 */
-	protected function createOtherObject() {
-		return Subdirectory\TheClassName::instance($this->plugin);
-	}
-
-
-
-	/**
-	 * Create new object
-	 */
-	protected function createNewObject($args) {
-		return new Subdirectory\TheClassName($args);
+	protected function createDashboard() {
+		return Cleanup\Dashboard::instance($this->plugin);
 	}
 
 
