@@ -21,7 +21,7 @@ final class Core extends Helpers\Singleton {
 	 */
 	protected function onConstruct() {
 
-		// Chec admin area
+		// Check admin area
 		if (!$this->plugin->context()->admin()) {
 			return;
 		}
@@ -30,7 +30,8 @@ final class Core extends Helpers\Singleton {
 		$factory = new Factory($this->plugin);
 
 		// Cleanup filters
-		add_filter('admin_footer_text', [$factory->elements(), 'footerText']);
+		add_filter('admin_footer_text', [$factory->elements(), 	'footerText']);
+		add_action('admin_init', 		[$factory->dashboard(), 'quickDraft']);
 	}
 
 

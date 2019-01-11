@@ -16,4 +16,20 @@ final class Dashboard extends Helpers\Singleton {
 
 
 
+	/**
+	 * Removes the 'Quick Draft' widget
+	 */
+	public function quickDraft() {
+
+		// Last minute check
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP_QUICK_DRAFT')) {
+			return;
+		}
+
+		// Done
+		remove_meta_box('dashboard_quick_press', 'dashboard', 'side');
+	}
+
+
+
 }
