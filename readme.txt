@@ -1,107 +1,99 @@
-=== Plugin Name ===
+=== Dashboard Cleanup ===
 
 Contributors: littlebizzy
 Donate link: https://www.patreon.com/littlebizzy
-Tags: five, keywords, separated, by, commas
+Tags: dashboard, cleanup, wp admin, backend, optimize
 Requires at least: 4.4
 Tested up to: 5.0
 Requires PHP: 7.2
 Multisite support: No
-Stable tag: 1.2.3
+Stable tag: 1.0.0
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
-Text Domain: plugin-name-littlebizzy
-Domain Path: /lang
-Prefix: ABCXYZ
+Prefix: DSHCLN
 
-Description of the plugin goes here, limited to 150 characters or less and should be a single well-written sentence that includes some of your most important keywords.
+Cleans up the WP Admin backend by disabling various bloat features including nag notices, Automattic spam, and other outdated and pointless items.
 
 == Description ==
 
-Description of the plugin goes here, limited to 150 characters or less and should be a single well-written sentence that includes some of your most important keywords.
+Cleans up the WP Admin backend by disabling various bloat features including nag notices, Automattic spam, and other outdated and pointless items.
 
 * [**Join our FREE Facebook group for support**](https://www.facebook.com/groups/littlebizzy/)
-* [**Worth a 5-star review? Thank you!**](https://wordpress.org/support/plugin/example-littlebizzy/reviews/?rate=5#new-post)
-* [Plugin Homepage](https://www.littlebizzy.com/plugins/disable-emojis)
-* [Plugin GitHub](https://github.com/littlebizzy/disable-emojis)
-* [SlickStack](https://slickstack.io)
+* [Plugin Homepage](https://www.littlebizzy.com/plugins/dashboard-cleanup)
+* [Plugin GitHub](https://github.com/littlebizzy/dashboard-cleanup)
 
-#### The Long Version ####
+#### Current Features ####
 
-Here you can place a longer description of the plugin and its features, separated into paragraphs.
-
-    code snippet is indented with four spaces;
+* disables/removes "Thank you for creating with WordPress" footer tag
+* disables/removes Quick Draft dashboard widget
+* disables/removes Welcome to WordPress admin notice
+* disables/removes WordPress Events and News dashboard widget
+* disables/removes WooCommerce admin notice "Connect your store to WooCommerce.com to receive extensions updates and support."
+* disables/removes WooCommerce admin notice "We noticed you have the block editor available: Try the WooCommerce Products Block for a powerful new way to feature products in posts.
+* disables/removes the shortcut links (drop down menu icon) to WordPress.org in the top left of WP Admin toolbar
+* disables/removes Links menu in WP Admin, even if links exist in database (wp_links)
+* disable/remove "Featured plugins" tab and "Favorites plugins" tab in the Add New Plugins area
 
 #### Compatibility ####
 
-This plugin has been designed for use on LEMP (Nginx) web servers with PHP 7.0 and MySQL 5.7 to achieve best performance. All of our plugins are meant for single site WordPress installations only; for both performance and security reasons, we highly recommend against using WordPress Multisite for the vast majority of projects.
+This plugin has been designed for use on [SlickStack](https://slickstack.io) web servers with PHP 7.2 and MySQL 5.7 to achieve best performance. All of our plugins are meant for single site WordPress installations only; for both performance and usability reasons, we highly recommend avoiding WordPress Multisite for the vast majority of projects.
 
-Note: Any WordPress plugin may also be loaded as "Must-Use" by using the [Autoloader](https://github.com/littlebizzy/autoloader) script within the `mu-plugins` directory.
+Any of our WordPress plugins may also be loaded as "Must-Use" plugins by using our free [Autoloader](https://github.com/littlebizzy/autoloader) script in the `mu-plugins` directory.
 
 #### Defined Constants ####
 
-The following defined constants are supported by this plugin:
+    /* Plugin Meta */
+    define('DISABLE_NAG_NOTICES', true);
+    
+    /* Dashboard Cleanup Functions */
+    define('DASHBOARD_CLEANUP_ADD_PLUGIN_TABS', true);
+    define('DASHBOARD_CLEANUP_EVENTS_AND_NEWS', true);
+    define('DASHBOARD_CLEANUP_LINK_MANAGER_MENU', true);
+    define('DASHBOARD_CLEANUP_QUICK_DRAFT', true);
+    define('DASHBOARD_CLEANUP_THANKS_FOOTER', true);
+    define('DASHBOARD_CLEANUP_WELCOME_TO_WORDPRESS', true);
+    define('DASHBOARD_CLEANUP_WOOCOMMERCE_CONNECT_STORE', true);
+    define('DASHBOARD_CLEANUP_WOOCOMMERCE_PRODUCTS_BLOCK', true);
+    define('DASHBOARD_CLEANUP_WP_ORG_SHORTCUT_LINKS', true); 
 
-* `define('DISABLE_NAG_NOTICES', true);`
+#### Technical Details ####
 
-Why no quotes? Adding quotes evaluates the 'false' or "false" values as a string, and the boolean evaluation of any string returns true (except for empty strings).
-
-It is a little bit weird but PHP works this way because it does not require strong data typing. There are special operatos (the triple equality ===) to ensure the right data type, but adds complexity and it is used normally where you are not sure of the input variable data type.
-
-It is true that there are constants that expects both boolean and string values, but the important thing here is that the false value does not contain quotes, e.g.:
-
-define('DISABLE_CART_FRAGMENTS', true);
-define('DISABLE_CART_FRAGMENTS', false);
-define('DISABLE_CART_FRAGMENTS', '123,456,789');
-
-#### Plugin Features ####
-
-* Parent Plugin: [**SEO Genius**](https://www.littlebizzy.com/plugins/seo-genius)
-* Disable Nag Notices: [[Yes](https://codex.wordpress.org/Plugin_API/Action_Reference/admin_notices#Disable_Nag_Notices)]
+* Prefix: DSHCLN
+* Parent Plugin: [**Speed Demon**](https://www.littlebizzy.com/plugins/speed-demon)
+* Disable Nag Notices: [Yes](https://codex.wordpress.org/Plugin_API/Action_Reference/admin_notices#Disable_Nag_Notices)
 * Settings Page: No
 * PHP Namespaces: Yes
 * Object-Oriented Code: Yes
 * Includes Media (images, icons, etc): No
 * Includes CSS: No
-* Database Storage: Yes
+* Database Storage: No
   * Transients: No
-  * WP Options Table: Yes
+  * WP Options Table: No
   * Other Tables: No
   * Creates New Tables: No
-* Database Queries: Backend Only 
-  * Query Types: Options API
+  * Creates New WP Cron Jobs: No
+* Database Queries: Backend Only (Options API)
+* Must-Use Support: [Yes](https://github.com/littlebizzy/autoloader)
 * Multisite Support: No
-* Uninstalls Data: Yes
-
-#### Inspiration ####
-
-* [Some Name](https://wordpress.org/plugins/plugin-name/)
-* [Another Name](https://wordpress.org/plugins/plugin-name/)
-
-#### Special Thanks ####
-
-[Alex Georgiou](https://www.alexgeorgiou.gr), [Automattic](https://automattic.com), [Brad Touesnard](https://bradt.ca), [Daniel Auener](http://www.danielauener.com), [Delicious Brains](https://deliciousbrains.com), [Greg Rickaby](https://gregrickaby.com), [Matt Mullenweg](https://ma.tt), [Mika Epstein](https://halfelf.org), [Mike Garrett](https://mikengarrett.com), [Samuel Wood](http://ottopress.com), [Scott Reilly](http://coffee2code.com), [Jan Dembowski](https://profiles.wordpress.org/jdembowski), [Jeff Starr](https://perishablepress.com), [Jeff Chandler](https://jeffc.me), [Jeff Matson](https://jeffmatson.net), [Jeremy Wagner](https://jeremywagner.me), [John James Jacoby](https://jjj.blog), [Leland Fiegel](https://leland.me), [Luke Cavanagh](https://github.com/lukecav), [Mike Jolley](https://mikejolley.com), [Pau Iglesias](https://pauiglesias.com), [Paul Irish](https://www.paulirish.com), [Rahul Bansal](https://profiles.wordpress.org/rahul286), [Roots](https://roots.io), [rtCamp](https://rtcamp.com), [Ryan Hellyer](https://geek.hellyer.kiwi), [WP Chat](https://wpchat.com), [WP Tavern](https://wptavern.com)
+* Uninstalls Data: No (None)
 
 #### Disclaimer ####
 
-We released this plugin in response to our managed hosting clients asking for better access to their server, and our primary goal will remain supporting that purpose. Although we are 100% open to fielding requests from the WordPress community, we kindly ask that you keep the above-mentioned goals in mind... thanks!
+We released this plugin in response to our managed hosting clients asking for better access to their server, and our primary goal will remain supporting that purpose. Although we are 100% open to fielding requests from the WordPress community, we kindly ask that you keep these conditions in mind, and refrain from slandering, threatening, or harassing our team members in order to get a feature added, or to otherwise get "free" support. The only place you should be contacting us is in our free [**Facebook group**](https://www.facebook.com/groups/littlebizzy/) which has been setup for this purpose, or via GitHub if you are an experienced developer. Thank you!
 
-#### Keywords ####
+#### Our Philosophy ####
 
-* Terms:
+> "Decisions, not options." -- WordPress.org
 
-* Phrases:
+> "Everything should be made as simple as possible, but not simpler." -- Albert Einstein, et al
 
-* Plugins:
+> "Write programs that do one thing and do it well... write programs to work together." -- Doug McIlroy
 
-### Philosophy ####
-
-Inspired by the likes of Unix and W. Edwards Deming, we believe in creating high quality software "components" that can stand on their own, or be integrated into other software. At a certain point, this approach has practical limits, which is why we are beginning to combine certain features into premium plugins. Still, we aim to reduce redundancy wherever possible, and present a unified UI in our premium plugins that in fact combines multiple small indepdent functions behind the scenes.
-https://www.johndcook.com/blog/2010/06/30/where-the-unix-philosophy-breaks-down/
+> "The innovation that this industry talks about so much is bullshit. Anybody can innovate... 99% of it is 'Get the work done.' The real work is in the details." -- Linus Torvalds
 
 == Installation ==
 
-1. Upload to `/wp-content/plugins/some-name-littlebizzy`
+1. Upload to `/wp-content/plugins/dashboard-cleanup-littlebizzy`
 2. Activate via WP Admin > Plugins
 3. Test plugin is working
 
@@ -109,24 +101,27 @@ https://www.johndcook.com/blog/2010/06/30/where-the-unix-philosophy-breaks-down/
 
 = How can I change this plugin's settings? =
 
-There is a settings page where you can exclude certain types of query strings.
+There is no settings page, everything works automatically.
 
 = I have a suggestion, how can I let you know? =
 
-Please avoid leaving negative reviews in order to get a feature implemented. Instead, we kindly ask that you post your feedback on the wordpress.org support forums by tagging this plugin in your post. If needed, you may also contact our homepage.
+Join our free Facebook group.
 
 == Changelog ==
 
-= 1.1.0 =
-* major changes/new features
-* tested with PHP 7.1
-* tested with PHP 7.2
-
-= 1.0.1 =
-* minor tweaks/patches
-
 = 1.0.0 =
 * initial release
-* tested with PHP 7.0
+* PBP v1.1.1
+* tested with PHP 7.0, 7.1, 7.2
+* tested with PHP 5.6 (no fatal errors only)
 * uses PHP namespaces
 * object-oriented codebase
+* disables/removes "Thank you for creating with WordPress" footer tag
+* disables/removes Quick Draft dashboard widget
+* disables/removes Welcome to WordPress admin notice
+* disables/removes WordPress Events and News dashboard widget
+* disables/removes WooCommerce admin notice "Connect your store to WooCommerce.com to receive extensions updates and support."
+* disables/removes WooCommerce admin notice "We noticed you have the block editor available: Try the WooCommerce Products Block for a powerful new way to feature products in posts.
+* disables/removes the shortcut links (drop down menu icon) to WordPress.org in the top left of WP Admin toolbar
+* disables/removes Links menu in WP Admin, even if links exist in database (wp_links)
+* disable/remove "Featured plugins" tab and "Favorites plugins" tab in the Add New Plugins area
