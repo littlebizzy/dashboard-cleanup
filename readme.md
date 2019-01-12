@@ -9,6 +9,17 @@ Cleans up the WP Admin backend by disabling various bloat features including nag
 
     /* Plugin Meta */
     define('DISABLE_NAG_NOTICES', true);
+    
+    /* Dashboard Cleanup Functions */
+    define('DASHBOARD_CLEANUP_ADD_PLUGIN_TABS', true);
+    define('DASHBOARD_CLEANUP_EVENTS_AND_NEWS', true);
+    define('DASHBOARD_CLEANUP_LINK_MANAGER_MENU', true);
+    define('DASHBOARD_CLEANUP_QUICK_DRAFT', true);
+    define('DASHBOARD_CLEANUP_THANKS_FOOTER', true);
+    define('DASHBOARD_CLEANUP_WELCOME_TO_WORDPRESS', true);
+    define('DASHBOARD_CLEANUP_WOOCOMMERCE_CONNECT_STORE', true);
+    define('DASHBOARD_CLEANUP_WOOCOMMERCE_PRODUCTS_BLOCK', true);
+    define('DASHBOARD_CLEANUP_WP_ORG_SHORTCUT_LINKS', true); 
 
 ### Support Issues
 
