@@ -60,6 +60,7 @@ class Updater {
 
 	/**
 	 * Handles HTTP requests looking for plugin updates
+	 * and removes any reference of the current plugin
 	 */
 	public function httpRequestArgs($args, $url) {
 
