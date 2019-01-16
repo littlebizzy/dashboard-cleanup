@@ -22,7 +22,7 @@ class Runner {
 		$plugin = new Plugin;
 
 		// Updater object
-		$plugin->updater = new Updater($plugin->file, $plugin->repo);
+		$plugin->updater = new Updater($plugin->file, $plugin->repo, $plugin->version);
 
 		// Function call
 		if (!isset($method)) {

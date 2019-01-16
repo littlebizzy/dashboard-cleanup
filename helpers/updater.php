@@ -28,20 +28,31 @@ class Updater {
 
 
 	/**
+	 * Current version
+	 */
+	private $version;
+
+
+
+	/**
 	 * Constructor
 	 */
-	public function __construct($file, $repo) {
+	public function __construct($file, $repo, $version) {
 
 		// Set plugin data
 		$this->file = $file;
 		$this->repo = $repo;
+		$this->version = $version;
 
 		// HTTP Request Args short-circuit
 		add_filter('http_request_args', [$this, 'httpRequestArgs'], PHP_INT_MAX, 2);
 
 		// Check repo
 		if (!empty($this->repo)) {
-			// ...
+			$this->checkUpdates();
+			/* if (!wp_next_scheduled('pbp_update_plugins_'.$this->repo)) {
+				wp_schedule_event(time(), 'hourly', 'checkUpdates');
+			} */
 		}
 	}
 
@@ -111,6 +122,25 @@ class Updater {
 
 		// Done
 		return $args;
+	}
+
+
+
+	/**
+	 * Check for private repo plugin updates
+	 */
+	private function checkUpdates() {
+
+		// Compose URL
+		$url = str_replace('%repo%', $this->repo, 'https://raw.githubusercontent.com/littlebizzy/%repo%/master/releases.json');
+
+		// Request attempt
+		$response = wp_remote_get($url);
+		if (empty($response) || !is_array($response)) {
+			return;
+		}
+
+		//print_r($response);die;
 	}
 
 
