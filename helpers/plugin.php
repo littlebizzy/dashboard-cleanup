@@ -25,6 +25,7 @@ class Plugin {
 	private $root;
 	private $prefix;
 	private $version;
+	private $repo;
 	private $packageNamespace;
 
 
@@ -48,6 +49,7 @@ class Plugin {
 		$this->root 	= dirname($this->file);
 		$this->prefix 	= constant($this->packageNamespace.'PREFIX');
 		$this->version 	= constant($this->packageNamespace.'VERSION');
+		$this->repo 	= defined($this->packageNamespace.'REPO')? constant($this->packageNamespace.'VERSION') : false;
 	}
 
 
