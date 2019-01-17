@@ -14,6 +14,13 @@ class Updater {
 
 
 	/**
+	 * The common option to store plugin update data
+	 */
+	const UPDATE_OPTION_NAME = 'lbpbp_update_plugins';
+
+
+
+	/**
 	 * Plugin file
 	 */
 	private $file;
@@ -49,11 +56,47 @@ class Updater {
 
 		// Check repo
 		if (!empty($this->repo)) {
+
+			// Hook the default plugin rows action
+			add_action('load-plugins.php', [$this, 'pluginRow'], 21);
+
 			$this->checkUpdates();
 			/* if (!wp_next_scheduled('pbp_update_plugins_'.$this->repo)) {
 				wp_schedule_event(time(), 'hourly', 'checkUpdates');
 			} */
 		}
+	}
+
+
+
+	/**
+	 * Remove default plugin row action
+	 */
+	public function pluginRow() {
+
+		// Check plugin file based key
+		if (false === ($key = $this->fileKey())) {
+			return;
+		}
+
+		// Check user permissions
+		if (!current_user_can('update_plugins')) {
+			return;
+		}
+
+		// Remove possible default WP action
+		remove_action('after_plugin_row_'.$key, 'wp_plugin_update_row', 10);
+
+		// Add a new custom action
+		add_action('after_plugin_row_'.$key, [$this, 'pluginRowUpdate'], 10, 2);
+	}
+
+
+
+	/**
+	 * Show custom update info
+	 */
+	public function pluginRowUpdate($file, $plugin_data) {
 	}
 
 
@@ -162,45 +205,45 @@ class Updater {
 			}
 		}
 
+		// Save in a common space (no needed to uninstall option data)
+		$plugins = $this->plugins();
+
 		// Check update
-		if (empty($greater)) {
-			return;
+		if (!empty($greater)) {
+
+			// Check plugin data
+			if (is_array($greater[1])) {
+				$package = $greater[1][0];
+				$readme  = $greater[1][1];
+
+			// No readme
+			} else {
+				$package = $greater[1];
+				$readme  = '';
+			}
+
+			if (!isset($plugins[$key])) {
+				$plugins[$key] = ['timestamp' => 0];
+			}
+
+			// Prepare data
+			$plugins[$key]['update'] = [
+				'readme' => $readme,
+				'package' => $package,
+			];
+
+			// Save data
+			$this->plugins($plugins);
+
+		// No plugin update but registered before
+		} elseif (isset($plugins[$key])) {
+
+			// Unset update info
+			$plugins[$key]['update'] = null;
+
+			// Save data
+			$this->plugins($plugins);
 		}
-
-		// Current update data
-		$update = get_site_transient('update_plugins');
-		if (empty($update) || !is_object($update)) {
-			return;
-		}
-
-		// Check response section
-		if (empty($update->response) || !is_array($update->response)) {
-			return;
-		}
-
-		// Check plugin data
-		if (is_array($greater[1])) {
-			$package = $greater[1][0];
-			$readme  = $greater[1][1];
-
-		// No readme
-		} else {
-			$package = $greater[1];
-			$readme  = '';
-		}
-
-		// Set plugin info
-		$update->response[$key] = (object) [
-			'id' 			=> $key,
-			'package' 		=> $package,
-			'slug'			=> $this->repo,
-			'url' 			=> $readme,
-			'plugin'		=> $key,
-			'new_version' 	=> $greater[0],
-		];
-
-		// Done
-		set_site_transient('update_plugins', $update);
 	}
 
 
@@ -233,6 +276,33 @@ class Updater {
 
 		// Done
 		return $key;
+	}
+
+
+
+	/**
+	 * Read or save plugins data
+	 */
+	private function plugins($plugins = null) {
+
+		// Retrieve plugins
+		if (!isset($plugins)) {
+
+			// Retrieve plugins list
+			$plugins = @json_decode(get_option(self::UPDATE_OPTION_NAME), true);
+			if (empty($plugins) || !is_array($plugins)) {
+				$plugins = [];
+			}
+
+			// Done
+			return $plugins;
+
+		// Update
+		} else {
+
+			// Save plugins data
+			update_option(self::UPDATE_OPTION_NAME, @json_encode($plugins), false);
+		}
 	}
 
 
