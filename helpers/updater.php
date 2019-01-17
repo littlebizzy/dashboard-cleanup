@@ -49,7 +49,7 @@ class Updater {
 
 		// Check repo
 		if (!empty($this->repo)) {
-			//$this->checkUpdates();
+			$this->checkUpdates();
 			/* if (!wp_next_scheduled('pbp_update_plugins_'.$this->repo)) {
 				wp_schedule_event(time(), 'hourly', 'checkUpdates');
 			} */
@@ -162,7 +162,7 @@ class Updater {
 			}
 		}
 
-		// Check version
+		// Check update
 		if (empty($greater)) {
 			return;
 		}
