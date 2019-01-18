@@ -14,7 +14,7 @@ class Updater {
 
 
 	/**
-	 * The common option to store plugin update data
+	 * The common option across PBP plugins to store plugin update data
 	 */
 	const UPDATE_OPTION_NAME = 'lbpbp_update_plugins';
 
