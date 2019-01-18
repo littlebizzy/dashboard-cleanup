@@ -19,7 +19,7 @@ namespace LittleBizzy\DashboardCleanup;
 
 // Plugin constants
 const FILE = __FILE__;
-const PREFIX = '[dshcln]';
+const PREFIX = 'dshcln';
 const VERSION = '1.0.0';
 const REPO = 'dashboard-cleanup';
 
