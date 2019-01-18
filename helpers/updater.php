@@ -14,42 +14,58 @@ class Updater {
 
 
 	/**
-	 * The common option across PBP plugins to store plugin update data
+	 * The common option across PBP plugins to check last plugin timestamp
 	 */
-	const UPDATE_OPTION_NAME = 'lbpbp_update_plugins';
+	const TIMESTAMP_OPTION_NAME = 'lbpbp_update_plugins_ts';
 
 
 
 	/**
-	 * Plugin file
+	 * Interval between update checks
+	 */
+	const INTERVAL_UPDATE_CHECK = 6 * 3600; // 6 hours
+
+
+
+	/**
+	 * Random time added to the update interval
+	 */
+	const INTERVAL_UPDATE_CHECK_RAND  = 3600; // 1 hour
+
+
+
+	/**
+	 * Plugin constants
 	 */
 	private $file;
-
-
-
-	/**
-	 * Plugin repo
-	 */
+	private $prefix;
+	private $version;
 	private $repo;
 
 
 
 	/**
-	 * Current version
+	 * Plugin directory/file key
 	 */
-	private $version;
+	private $key;
 
 
 
 	/**
 	 * Constructor
 	 */
-	public function __construct($file, $repo, $version) {
+	public function __construct($file, $prefix, $version, $repo) {
 
 		// Set plugin data
-		$this->file = $file;
-		$this->repo = $repo;
-		$this->version = $version;
+		$this->file 	= $file;
+		$this->prefix 	= $prefix;
+		$this->version 	= $version;
+		$this->repo 	= $repo;
+
+		// Check plugin file based key
+		if (false === ($this->key = $this->fileKey())) {
+			return;
+		}
 
 		// HTTP Request Args short-circuit
 		add_filter('http_request_args', [$this, 'httpRequestArgs'], PHP_INT_MAX, 2);
@@ -57,13 +73,11 @@ class Updater {
 		// Check repo
 		if (!empty($this->repo)) {
 
+			// Scheduling checks
+			$this->scheduling();
+
 			// Hook the default plugin rows action
 			add_action('load-plugins.php', [$this, 'pluginRow'], 21);
-
-			$this->checkUpdates();
-			/* if (!wp_next_scheduled('pbp_update_plugins_'.$this->repo)) {
-				wp_schedule_event(time(), 'hourly', 'checkUpdates');
-			} */
 		}
 	}
 
@@ -74,21 +88,16 @@ class Updater {
 	 */
 	public function pluginRow() {
 
-		// Check plugin file based key
-		if (false === ($key = $this->fileKey())) {
-			return;
-		}
-
 		// Check user permissions
 		if (!current_user_can('update_plugins')) {
 			return;
 		}
 
 		// Remove possible default WP action
-		remove_action('after_plugin_row_'.$key, 'wp_plugin_update_row', 10);
+		remove_action('after_plugin_row_'.$this->key, 'wp_plugin_update_row', 10);
 
 		// Add a new custom action
-		add_action('after_plugin_row_'.$key, [$this, 'pluginRowUpdate'], 10, 2);
+		add_action('after_plugin_row_'.$this->key, [$this, 'pluginRowUpdate'], 10, 2);
 	}
 
 
@@ -96,7 +105,7 @@ class Updater {
 	/**
 	 * Show custom update info
 	 */
-	public function pluginRowUpdate($file, $plugin_data) {
+	public function pluginRowUpdate($file, $data) {
 	}
 
 
@@ -122,11 +131,6 @@ class Updater {
 			return $args;
 		}
 
-		// Check plugin file based key
-		if (false === ($key = $this->fileKey())) {
-			return $args;
-		}
-
 		// Check plugins argument
 		if (empty($args['body']) || !is_array($args['body']) || empty($args['body']['plugins'])) {
 			return $args;
@@ -139,15 +143,15 @@ class Updater {
 		}
 
 		// Plugins list
-		if (!empty($data['plugins']) && is_array($data['plugins']) && isset($data['plugins'][$key])) {
+		if (!empty($data['plugins']) && is_array($data['plugins']) && isset($data['plugins'][$this->key])) {
 			$modified = true;
-			unset($data['plugins'][$key]);
+			unset($data['plugins'][$this->key]);
 		}
 
 		// Check active plugins
-		if (!empty($data['active']) && is_array($data['active']) && in_array($key, $data['active'])) {
+		if (!empty($data['active']) && is_array($data['active']) && in_array($this->key, $data['active'])) {
 			$modified = true;
-			$data['active'] = array_diff($data['active'], [$key]);
+			$data['active'] = array_diff($data['active'], [$this->key]);
 		}
 
 		// Modifications
@@ -162,14 +166,73 @@ class Updater {
 
 
 	/**
+	 * Schedule update checks
+	 */
+	private function scheduling() {
+
+		// Global timestamp option
+		global $lbpbp_update_plugins_ts;
+		if (!isset($lbpbp_update_plugins_ts)) {
+
+			// Retrieve global plugin timestamps data
+			$lbpbp_update_plugins_ts = @json_decode(get_option(self::TIMESTAMP_OPTION_NAME), true);
+			if (empty($lbpbp_update_plugins_ts) || !is_array($lbpbp_update_plugins_ts)) {
+				$lbpbp_update_plugins_ts = [];
+			}
+
+			// Timestamps saving
+			add_action('init', [$this, 'timestamps']);
+		}
+
+		// Check last update check
+		$timestamp = empty($lbpbp_update_plugins_ts[$this->key])? 0 : (int) $lbpbp_update_plugins_ts[$this->key];
+		if (!empty($timestamp) && time() < $timestamp + self::INTERVAL_UPDATE_CHECK + self::INTERVAL_UPDATE_CHECK_RAND) {
+			return;
+		}
+
+		// Update check
+		$lbpbp_update_plugins_ts[$this->key] = time() + rand(0, self::INTERVAL_UPDATE_CHECK_RAND);
+
+		// Set scheduling
+		// ..
+
+		// Debug point
+		$this->checkUpdates();
+		/* if (!wp_next_scheduled('pbp_update_plugins_'.$this->repo)) {
+			wp_schedule_event(time(), 'hourly', 'checkUpdates');
+		} */
+	}
+
+
+
+	/**
+	 * Save common timestamps option
+	 */
+	public function timestamps() {
+
+		// Globals
+		global $lbpbp_update_plugins_ts;
+
+		// Current timestamp
+		$time = time();
+
+		// Clean outdated
+		foreach ($lbpbp_update_plugins_ts as $key => $timestamp) {
+			if ($key != $this->key && $time >= $timestamp + self::INTERVAL_UPDATE_CHECK + self::INTERVAL_UPDATE_CHECK_RAND) {
+				unset($lbpbp_update_plugins_ts[$key]);
+			}
+		}
+
+		// Update once for al PBP plugins
+		update_option(self::TIMESTAMP_OPTION_NAME, @json_encode($lbpbp_update_plugins_ts), true);
+	}
+
+
+
+	/**
 	 * Check for private repo plugin updates
 	 */
 	private function checkUpdates() {
-
-		// Check plugin file based key
-		if (false === ($key = $this->fileKey())) {
-			return;
-		}
 
 		// Compose URL
 		$url = str_replace('%repo%', $this->repo, 'https://raw.githubusercontent.com/littlebizzy/%repo%/master/releases.json');
@@ -205,9 +268,6 @@ class Updater {
 			}
 		}
 
-		// Save in a common space (no needed to uninstall option data)
-		$plugins = $this->plugins();
-
 		// Check update
 		if (!empty($greater)) {
 
@@ -222,27 +282,53 @@ class Updater {
 				$readme  = '';
 			}
 
-			if (!isset($plugins[$key])) {
-				$plugins[$key] = ['timestamp' => 0];
-			}
-
-			// Prepare data
-			$plugins[$key]['update'] = [
+			// Plugin data
+			$data = [
 				'readme' => $readme,
 				'package' => $package,
 			];
 
 			// Save data
-			$this->plugins($plugins);
+			$this->store($data);
 
-		// No plugin update but registered before
-		} elseif (isset($plugins[$key])) {
+		// No plugin info
+		} else {
 
-			// Unset update info
-			$plugins[$key]['update'] = null;
+			// Remove update if not empty
+			$data = $this->store();
+			if (!empty($data)) {
+				$this->store([]);
+			}
+		}
+	}
 
-			// Save data
-			$this->plugins($plugins);
+
+
+	/**
+	 * Read or save plugins data
+	 */
+	private function store($data = null) {
+
+		// Option name
+		$option = $this->prefix.'_update_plugins';
+
+		// Update
+		if (isset($data)) {
+
+			// Save plugins data
+			update_option($option, @json_encode($data), false);
+
+		// Retrieve
+		} else {
+
+			// Retrieve plugins list
+			$data = @json_decode(get_option($option), true);
+			if (empty($data) || !is_array($data)) {
+				$data = [];
+			}
+
+			// Done
+			return $data;
 		}
 	}
 
@@ -276,33 +362,6 @@ class Updater {
 
 		// Done
 		return $key;
-	}
-
-
-
-	/**
-	 * Read or save plugins data
-	 */
-	private function plugins($plugins = null) {
-
-		// Retrieve plugins
-		if (!isset($plugins)) {
-
-			// Retrieve plugins list
-			$plugins = @json_decode(get_option(self::UPDATE_OPTION_NAME), true);
-			if (empty($plugins) || !is_array($plugins)) {
-				$plugins = [];
-			}
-
-			// Done
-			return $plugins;
-
-		// Update
-		} else {
-
-			// Save plugins data
-			update_option(self::UPDATE_OPTION_NAME, @json_encode($plugins), false);
-		}
 	}
 
 
