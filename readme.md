@@ -2,8 +2,8 @@
 
 Cleans up the WP Admin backend by disabling various bloat features including nag notices, Automattic spam, and other outdated and pointless items.
 
-* [Plugin Homepage (LittleBizzy.com)](https://www.littlebizzy.com/plugins/dashboard-cleanup)
-* [Free Facebook Group](https://www.facebook.com/groups/littlebizzy/)
+* [Plugin Homepage](https://www.littlebizzy.com/plugins/dashboard-cleanup)
+* [**Become A LittleBizzy.com Member Today!**](https://www.littlebizzy.com/members)
 
 ### Defined Constants
 
@@ -20,6 +20,12 @@ Cleans up the WP Admin backend by disabling various bloat features including nag
     define('DASHBOARD_CLEANUP_WOOCOMMERCE_CONNECT_STORE', true);
     define('DASHBOARD_CLEANUP_WOOCOMMERCE_PRODUCTS_BLOCK', true);
     define('DASHBOARD_CLEANUP_WP_ORG_SHORTCUT_LINKS', true); 
+
+### Compatibility
+
+This plugin has been designed for use on [SlickStack](https://slickstack.io) web servers with PHP 7.2 and MySQL 5.7 to achieve best performance. All of our plugins are meant for single site WordPress installations only; for both performance and usability reasons, we strongly recommend avoiding WordPress Multisite for the vast majority of your projects.
+
+Any of our WordPress plugins may also be loaded as "Must-Use" plugins (meaning that they load first, and cannot be deactivated) by using our free [Autoloader](https://github.com/littlebizzy/autoloader) script in the `mu-plugins` directory.
 
 ### Support Issues
 
