@@ -1,7 +1,7 @@
 {
 	"1.0.0": "https://github.com/littlebizzy/dashboard-cleanup/archive/1.0.0.zip",
 	"1.1.0": "https://github.com/littlebizzy/dashboard-cleanup/archive/1.1.0.zip",
-	"1.2.0": ["https://github.com/littlebizzy/dashboard-cleanup/archive/1.1.0.zip",
+	"1.2.1": ["https://github.com/littlebizzy/dashboard-cleanup/archive/1.1.0.zip",
 		  "https://raw.githubusercontent.com/littlebizzy/dashboard-cleanup/1.1.0/readme.txt"]
 	
 }
