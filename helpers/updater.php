@@ -70,6 +70,9 @@ class Updater {
 		// HTTP Request Args short-circuit
 		add_filter('http_request_args', [$this, 'httpRequestArgs'], PHP_INT_MAX, 2);
 
+		// Filters the plugin api information
+		add_filter('plugins_api', [$this, 'pluginsAPI'], PHP_INT_MAX, 3);
+
 		// Check repo for scheduling
 		if (!empty($this->repo)) {
 			$this->scheduling();
@@ -129,8 +132,8 @@ class Updater {
 			$args['body']['plugins'] = wp_json_encode($data);
 
 			// Filter the response
-			$data = $this->store();
-			if (!empty($data)) {
+			$upgrade = $this->upgrade();
+			if (!empty($upgrade)) {
 				add_filter('http_response', [$this, 'httpResponse'], PHP_INT_MAX, 3);
 			}
 		}
@@ -160,8 +163,8 @@ class Updater {
 		}
 
 		// Check plugin data
-		$data = $this->store();
-		if (empty($data)) {
+		$upgrade = $this->upgrade();
+		if (empty($upgrade)) {
 			return $response;
 		}
 
@@ -180,10 +183,9 @@ class Updater {
 		$payload['plugins'][$this->key] = [
 			'slug' 				=> dirname($this->key),
 			'plugin' 			=> $this->key,
-			'new_version' 		=> $data['version'],
-			'url'				=> dirname(dirname($data['package'])),
-			'package' 			=> $data['package'],
-			'upgrade_notice' 	=> 'test upgrade notice',
+			'new_version' 		=> $upgrade['version'],
+			'package' 			=> $upgrade['package'],
+			'upgrade_notice' 	=> $upgrade['notice'],
 		];
 
 		// Back to JSON
@@ -191,6 +193,38 @@ class Updater {
 
 		// Done
 		return $response;
+	}
+
+
+
+	/**
+	 * Filters the plugin API
+	 */
+	public function pluginsAPI($default, $action, $args) {
+
+		// Check info
+		if ('plugin_information' != $action) {
+			return $default;
+		}
+
+		// Check arguments
+		if (empty($args) || !is_object($args)) {
+			return $default;
+		}
+
+		// Check slug argument
+		if (empty($args->slug) || $args->slug != dirname($this->key)) {
+			return $default;
+		}
+
+		// Check local data
+		$upgrade = $this->upgrade();
+		if (empty($upgrade) || !is_array($upgrade)) {
+			return $default;
+		}
+
+		// Done
+		return $default;
 	}
 
 
@@ -289,47 +323,44 @@ class Updater {
 		// Enum json version
 		foreach ($versions as $version => $info) {
 
-			// Compare with current version
-			if (!empty($info) && version_compare($version, $this->version, '>')) {
+			// Check basic package data
+			if (empty($info['package'])) {
+				continue;
+			}
 
-				// Add as a new version, or compare with registered new version (avoid order issues)
-				if (empty($greater) || version_compare($version, $greater[0], '>')) {
-					$greater = [$version, $info];
-				}
+			// Compare first with current version
+			if (empty($info) || version_compare($version, $this->version, '<=')) {
+				continue;
+			}
+
+			// Add if there is a new version, or compare with registered new version (this avoid order issues)
+			if (empty($greater) || version_compare($version, $greater['version'], '>')) {
+				$greater = $info;
+				$greater['version'] = $version;
 			}
 		}
 
-		// Check update
+		// Check update data
 		if (!empty($greater)) {
 
-			// Check plugin data
-			if (is_array($greater[1])) {
-				$package = $greater[1][0];
-				$readme  = $greater[1][1];
-
-			// No readme
-			} else {
-				$package = $greater[1];
-				$readme  = '';
-			}
-
-			// Plugin data
-			$data = [
-				'version' 	=> $greater[0],
-				'readme' 	=> $readme,
-				'package' 	=> $package,
+			// Safe data
+			$upgrade = [
+				'version' 	=> $greater['version'],
+				'package' 	=> $greater['package'],
+				'readme' 	=> empty($greater['readme'])? '' : $greater['readme'],
+				'notice'	=> empty($greater['notice'])? '' : $greater['notice'],
 			];
 
 			// Save data
-			$this->store($data);
+			$this->upgrade($upgrade);
 
 		// No plugin info
 		} else {
 
 			// Remove update if not empty
-			$data = $this->store();
-			if (!empty($data)) {
-				$this->store([]);
+			$upgrade = $this->upgrade();
+			if (!empty($upgrade)) {
+				$this->upgrade([]);
 			}
 		}
 	}
@@ -339,16 +370,16 @@ class Updater {
 	/**
 	 * Read or save plugins data
 	 */
-	private function store($data = null) {
+	private function upgrade($upgrade = null) {
 
 		// Option name
 		$option = $this->prefix.'_update_plugins';
 
 		// Update
-		if (isset($data)) {
+		if (isset($upgrade)) {
 
 			// Save plugins data
-			update_option($option, @json_encode($data), false);
+			update_option($option, @json_encode($upgrade), false);
 
 		// Retrieve
 		} else {
