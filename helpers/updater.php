@@ -70,42 +70,10 @@ class Updater {
 		// HTTP Request Args short-circuit
 		add_filter('http_request_args', [$this, 'httpRequestArgs'], PHP_INT_MAX, 2);
 
-		// Check repo
+		// Check repo for scheduling
 		if (!empty($this->repo)) {
-
-			// Scheduling checks
 			$this->scheduling();
-
-			// Hook the default plugin rows action
-			add_action('load-plugins.php', [$this, 'pluginRow'], 21);
 		}
-	}
-
-
-
-	/**
-	 * Remove default plugin row action
-	 */
-	public function pluginRow() {
-
-		// Check user permissions
-		if (!current_user_can('update_plugins')) {
-			return;
-		}
-
-		// Remove possible default WP action
-		remove_action('after_plugin_row_'.$this->key, 'wp_plugin_update_row', 10);
-
-		// Add a new custom action
-		add_action('after_plugin_row_'.$this->key, [$this, 'pluginRowUpdate'], 10, 2);
-	}
-
-
-
-	/**
-	 * Show custom update info
-	 */
-	public function pluginRowUpdate($file, $data) {
 	}
 
 
@@ -156,7 +124,15 @@ class Updater {
 
 		// Modifications
 		if ($modified) {
+
+			// Set new plugins body data
 			$args['body']['plugins'] = wp_json_encode($data);
+
+			// Filter the response
+			$data = $this->store();
+			if (!empty($data)) {
+				add_filter('http_response', [$this, 'httpResponse'], PHP_INT_MAX, 3);
+			}
 		}
 
 		// Done
@@ -166,9 +142,66 @@ class Updater {
 
 
 	/**
+	 * Check filter response
+	 */
+	public function httpResponse($response, $r, $url) {
+
+		// First remove this filter
+		remove_filter('http_response', [$this, 'httpResponse'], PHP_INT_MAX);
+
+		// Check endpoint
+		if (false === strpos($url, '://api.wordpress.org/plugins/update-check/')) {
+			return $response;
+		}
+
+		// Check response
+		if (is_wp_error($response) || !isset($response['body'])) {
+			return $response;
+		}
+
+		// Check plugin data
+		$data = $this->store();
+		if (empty($data)) {
+			return $response;
+		}
+
+		// Cast to array
+		$payload = @json_decode($response['body'], true);
+		if (empty($payload) || !is_array($payload)) {
+			$payload = [];
+		}
+
+		// Check plugins
+		if (empty($payload['plugins']) || !is_array($payload['plugins'])) {
+			$payload['plugins'] = [];
+		}
+
+		// Set this plugin info
+		$payload['plugins'][$this->key] = [
+			'slug' 				=> dirname($this->key),
+			'plugin' 			=> $this->key,
+			'new_version' 		=> $data['version'],
+			'url'				=> dirname(dirname($data['package'])),
+			'package' 			=> $data['package'],
+			'upgrade_notice' 	=> 'test upgrade notice',
+		];
+
+		// Back to JSON
+		$response['body'] = @json_encode($payload);
+
+		// Done
+		return $response;
+	}
+
+
+
+	/**
 	 * Schedule update checks
 	 */
 	private function scheduling() {
+
+// Debug point
+//$this->checkUpdates(); return;
 
 		// Global timestamp option
 		global $lbpbp_update_plugins_ts;
@@ -196,8 +229,6 @@ class Updater {
 		// Set scheduling
 		// ..
 
-		// Debug point
-		$this->checkUpdates();
 		/* if (!wp_next_scheduled('pbp_update_plugins_'.$this->repo)) {
 			wp_schedule_event(time(), 'hourly', 'checkUpdates');
 		} */
@@ -284,8 +315,9 @@ class Updater {
 
 			// Plugin data
 			$data = [
-				'readme' => $readme,
-				'package' => $package,
+				'version' 	=> $greater[0],
+				'readme' 	=> $readme,
+				'package' 	=> $package,
 			];
 
 			// Save data
@@ -321,14 +353,20 @@ class Updater {
 		// Retrieve
 		} else {
 
+			// Local cache
+			static $value;
+			if (isset($value)) {
+				return $value;
+			}
+
 			// Retrieve plugins list
-			$data = @json_decode(get_option($option), true);
-			if (empty($data) || !is_array($data)) {
-				$data = [];
+			$value = @json_decode(get_option($option), true);
+			if (empty($value) || !is_array($value)) {
+				$value = [];
 			}
 
 			// Done
-			return $data;
+			return $value;
 		}
 	}
 
