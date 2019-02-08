@@ -110,6 +110,7 @@ Join our free Facebook group.
 == Changelog ==
 
 = 1.0.0 =
+
 * initial release
 * PBP v1.1.1
 * tested with PHP 7.0, 7.1, 7.2
