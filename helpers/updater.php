@@ -186,6 +186,10 @@ class Updater {
 			'new_version' 		=> $upgrade['version'],
 			'package' 			=> $upgrade['package'],
 			'upgrade_notice' 	=> $upgrade['notice'],
+			'icons'				=> $upgrade['icons'],
+			'banners'			=> $upgrade['banners'],
+			'tested'			=> $upgrade['tested'],
+			'requires_php'		=> $upgrade['requires_php'],
 		];
 
 		// Back to JSON
@@ -235,6 +239,7 @@ class Updater {
 	private function scheduling() {
 
 // Debug point
+return;
 //$this->checkUpdates(); return;
 
 		// Global timestamp option
@@ -345,10 +350,14 @@ class Updater {
 
 			// Safe data
 			$upgrade = [
-				'version' 	=> $greater['version'],
-				'package' 	=> $greater['package'],
-				'readme' 	=> empty($greater['readme'])? '' : $greater['readme'],
-				'notice'	=> empty($greater['notice'])? '' : $greater['notice'],
+				'version' 		=> $greater['version'],
+				'package' 		=> $greater['package'],
+				'readme' 		=> empty($greater['readme'])? '' : $greater['readme'],
+				'notice'		=> empty($greater['notice'])? '' : $greater['notice'],
+				'icons'			=> (empty($greater['icons']) || !is_array($greater['icons']))? [] : $greater['icons'],
+				'banners'		=> (empty($greater['banners']) || !is_array($greater['banners']))? [] : $greater['banners'],
+				'tested'		=> empty($greater['tested'])? '' : $greater['tested'],
+				'requires_php' 	=> empty($greater['requires_php'])? '' : $greater['requires_php'],
 			];
 
 			// Save data
