@@ -99,7 +99,6 @@ if (!empty($upgrade['readme'])) {
 
 
 
-
 	/**
 	 * Handles HTTP requests looking for plugin updates
 	 * and removes any reference of the current plugin
@@ -261,11 +260,76 @@ if (!empty($upgrade['readme'])) {
 			return $default;
 		}
 
+		/**
+		 * Debug:
+		 *
+		 * x [0] => name
+		 * x [1] => slug
+		 * [2] => version
+		 * [3] => author
+		 * [4] => author_profile
+		 * [5] => requires
+		 * [6] => tested
+		 * [7] => requires_php
+		 * [8] => compatibility
+		 * [9] => rating
+		 * [10] => ratings
+		 * [11] => num_ratings
+		 * [12] => support_threads
+		 * [13] => support_threads_resolved
+		 * [14] => active_installs
+		 * [15] => last_updated
+		 * [16] => added
+		 * [17] => homepage
+		 * [18] => sections
+		 * [19] => download_link
+		 * [20] => screenshots
+		 * [21] => tags
+		 * [22] => versions
+		 * [23] => donate_link
+		 * [24] => banners
+		 * [25] => contributors
+		 *
+		 * End debug */
+
+/*
+		 [0] => name
+	     [1] => tags
+	     [2] => requires_at_least
+	     [3] => tested_up_to
+	     [4] => stable_tag
+	     [5] => contributors
+	     [6] => donate_link
+	     [7] => license
+	     [8] => license_uri
+	     [9] => short_description
+	     [10] => screenshots
+	     [11] => is_excerpt
+	     [12] => is_truncated
+	     [13] => sections
+	     [14] => remaining_content
+	     [15] => upgrade_notice
+		 [16] => slug
+	     [17] => icons
+	     [18] => banners
+*/
+
+		// Prepare banner
+		$banners = [];
+		if (isset($upgrade['banners']['1x'])) {
+			$banners['low'] = $upgrade['banners']['1x'];
+		}
+		if (isset($upgrade['banners']['2x'])) {
+			$banners['high'] = $upgrade['banners']['2x'];
+		}
+
 		// Prepare object
 		$json = (object) $json;
 		$json->slug 	= dirname($this->key);
-		$json->icons 	= $upgrade['icons'];
-		$json->banners 	= $upgrade['banners'];
+		$json->banners 	= $banners;
+		$json->version	= $upgrade['version'];
+
+//$a = (array) $json; error_log(print_r(array_keys($a), true));die;
 
 		// Done
 		return $json;
