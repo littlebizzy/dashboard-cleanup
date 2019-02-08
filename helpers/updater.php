@@ -314,25 +314,20 @@ if (!empty($upgrade['readme'])) {
 	     [18] => banners
 */
 
-		// Prepare banner
-		$banners = [];
-		if (isset($upgrade['banners']['1x'])) {
-			$banners['low'] = $upgrade['banners']['1x'];
-		}
-		if (isset($upgrade['banners']['2x'])) {
-			$banners['high'] = $upgrade['banners']['2x'];
-		}
+		// Prepare contributors
+		$json['contributors'] = ['littlebizzy' => 'https://www.littlebizzy.com'];
 
 		// Prepare object
-		$json = (object) $json;
-		$json->slug 	= dirname($this->key);
-		$json->banners 	= $banners;
-		$json->version	= $upgrade['version'];
+		$api = (object) $json;
+		$api->slug = dirname($this->key);
+		$api->banners = $upgrade['banners'];
+		$api->version = $upgrade['version'];
+		$api->download_link = $upgrade['package'];
 
-//$a = (array) $json; error_log(print_r(array_keys($a), true));die;
+//$a = (array) $api; error_log(print_r(array_keys($a), true));die;
 
 		// Done
-		return $json;
+		return $api;
 	}
 
 
@@ -342,6 +337,7 @@ if (!empty($upgrade['readme'])) {
 	 */
 	private function scheduling() {
 
+// Test
 return;
 
 // Debug point
