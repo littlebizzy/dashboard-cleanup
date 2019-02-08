@@ -14,7 +14,7 @@
 			"1x": "https://ps.w.org/akismet/assets/icon-128x128.png?rev=969272"
 		},
 		"banners": {
-			"1x": "https://ps.w.org/akismet/assets/banner-772x250.jpg?rev=479904"
+			"high": "https://www.littlebizzy.com/wp-content/uploads/city-view.jpg"
 		},
 		"tested": "5.0.3",
 		"requires_php": "5.3"
