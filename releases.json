@@ -8,6 +8,15 @@
 	"1.2.1": {
 		"package": "https://github.com/littlebizzy/dashboard-cleanup/archive/1.1.0.zip",
 		"readme": "https://raw.githubusercontent.com/littlebizzy/dashboard-cleanup/1.1.0/readme.txt",
-		"notice": "An important update"
+		"notice": "An important update",
+		"icons": {
+			"2x": "https://ps.w.org/akismet/assets/icon-256x256.png?rev=969272",
+			"1x": "https://ps.w.org/akismet/assets/icon-128x128.png?rev=969272"
+		},
+		"banners": {
+			"1x": "https://ps.w.org/akismet/assets/banner-772x250.jpg?rev=479904"
+		},
+		"tested": "5.0.3",
+		"requires_php": "5.3"
 	}
 }
