@@ -23,7 +23,7 @@ class Updater {
 	/**
 	 * Random time added to the cron hook to avoid multiple requests
 	 */
-	const INTERVAL_UPDATE_RAND = 10; // 3600; // 1 hour
+	const INTERVAL_UPDATE_RAND = 300; // 5 minutes
 
 
 
@@ -67,6 +67,10 @@ class Updater {
 			return;
 		}
 
+		// Set namespace primary name
+		$namespace = explode('\\', __NAMESPACE__);
+		$this->namespace = strtolower($namespace[0]);
+
 		// HTTP Request Args short-circuit
 		add_filter('http_request_args', [$this, 'httpRequestArgs'], PHP_INT_MAX, 2);
 
@@ -76,12 +80,8 @@ class Updater {
 		// Check repo for scheduling
 		if (!empty($this->repo)) {
 
-			// Set namespace primary name
-			$namespace = explode('\\', __NAMESPACE__);
-			$this->namespace = strtolower($namespace[0]);
-
 			// Schedule check
-			$this->scheduling();
+			$this->scheduleCheck();
 		}
 	}
 
@@ -201,6 +201,11 @@ class Updater {
 		// Back to JSON
 		$response['body'] = @json_encode($payload);
 
+		// Check automatic update
+		if (defined('AUTOMATIC_UPDATE_PLUGINS') && AUTOMATIC_UPDATE_PLUGINS) {
+			$this->scheduleInstall();
+		}
+
 		// Done
 		return $response;
 	}
@@ -268,7 +273,7 @@ return $default;
 	/**
 	 * Schedule update checks
 	 */
-	private function scheduling() {
+	private function scheduleCheck() {
 
 		// Set cron hook
 		$hook = $this->namespace.'_'.$this->prefix.'_update_plugin_check';
@@ -406,17 +411,6 @@ return $default;
 			// Save data
 			$this->upgrade($upgrade);
 
-			// Check automatic upgrade
-			if (defined('AUTOMATIC_UPDATE_PLUGINS') && AUTOMATIC_UPDATE_PLUGINS) {
-
-				// Install attempt
-				if ($this->install()) {
-
-					// Remove upgrade data
-					$this->upgrade([]);
-				}
-			}
-
 		// No plugin info
 		} else {
 
@@ -499,9 +493,26 @@ return $default;
 
 
 	/**
+	 * Schedule plugin install
+	 */
+	private function scheduleInstall() {
+
+		// Set cron hook
+		$hook = $this->namespace.'_'.$this->prefix.'_update_plugin_install';
+		add_action($hook, [$this, 'install']);
+
+		// Set scheduling
+		if (!wp_next_scheduled($hook)) {
+			wp_schedule_single_event(time() + rand(0, 30), $hook);
+		}
+	}
+
+
+
+	/**
 	 * Install plugin
 	 */
-	private function install() {
+	public function install() {
 
 		// Prepare input data
 		$plugin = $this->key;
@@ -569,7 +580,6 @@ $debug = true;
 		}
 
 
-
 		// Check error result
 		if ( is_wp_error( $skin->result ) ) {
 
@@ -584,7 +594,6 @@ $debug = true;
 
 			// Error
 			return false;
-
 
 
 		// Check process errors
@@ -639,6 +648,12 @@ $debug = true;
 			if ($debug) {
 				error_log(print_r($status, true));
 			}
+
+			// Activate installed plugin
+			activate_plugin($result[$plugin]['destination_name']);
+
+			// Remove upgrade data
+			$this->upgrade([]);
 
 			// Done
 			return true;
