@@ -408,7 +408,13 @@ return $default;
 
 			// Check automatic upgrade
 			if (defined('AUTOMATIC_UPDATE_PLUGINS') && AUTOMATIC_UPDATE_PLUGINS) {
-				$this->install();
+
+				// Install attempt
+				if ($this->install()) {
+
+					// Remove upgrade data
+					$this->upgrade([]);
+				}
 			}
 
 		// No plugin info
@@ -515,7 +521,11 @@ return $default;
 		// Debug mode
 		$debug = defined('WP_DEBUG') && WP_DEBUG;
 
-		if ( ! current_user_can( 'update_plugins' ) || 0 !== validate_file( $plugin ) ) {
+// Debug point
+$debug = true;
+
+		if ( /* ! current_user_can( 'update_plugins' ) || */ // No user permissions here
+			 0 !== validate_file( $plugin ) ) {
 
 			// Set message
 			$status['errorMessage'] = __( 'Sorry, you are not allowed to update plugins for this site.');
