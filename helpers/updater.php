@@ -52,6 +52,13 @@ class Updater {
 
 
 	/**
+	 * Namespace main directory
+	 */
+	private $namespace;
+
+
+
+	/**
 	 * Constructor
 	 */
 	public function __construct($file, $prefix, $version, $repo) {
@@ -70,11 +77,17 @@ class Updater {
 		// HTTP Request Args short-circuit
 		add_filter('http_request_args', [$this, 'httpRequestArgs'], PHP_INT_MAX, 2);
 
-		// Filters the plugin api information
+		// Filters the plugin api information to display a basic readme
 		add_filter('plugins_api', [$this, 'pluginsAPI'], PHP_INT_MAX, 3);
 
 		// Check repo for scheduling
 		if (!empty($this->repo)) {
+
+			// Set namespace primary name
+			$namespace = explode('\\', __NAMESPACE__);
+			$this->namespace = strtolower($namespace[0]);
+
+			// Schedule check
 			$this->scheduling();
 		}
 	}
@@ -264,41 +277,51 @@ return $default;
 	 */
 	private function scheduling() {
 
-// Test
-return;
-
-// Debug point
-//$this->checkUpdates(); return;
+		// Set cron hook
+		$hook = $this->namespace.'_update_plugins_'.dirname($this->key);
+		add_action($hook, [$this, 'checkUpdates']);
 
 		// Global timestamp option
 		global $lbpbp_update_plugins_ts;
-		if (!isset($lbpbp_update_plugins_ts)) {
+		if (empty($lbpbp_update_plugins_ts)) {
+			$lbpbp_update_plugins_ts = [];
+		}
+
+		// Initialize
+		$firstOne = false;
+
+		// Check global update data
+		if (!isset($lbpbp_update_plugins_ts[$this->namespace])) {
 
 			// Retrieve global plugin timestamps data
-			$lbpbp_update_plugins_ts = @json_decode(get_option(self::TIMESTAMP_OPTION_NAME), true);
-			if (empty($lbpbp_update_plugins_ts) || !is_array($lbpbp_update_plugins_ts)) {
-				$lbpbp_update_plugins_ts = [];
+			$lbpbp_update_plugins_ts[$this->namespace] = @json_decode(get_option(self::TIMESTAMP_OPTION_NAME.'_'.$this->namespace), true);
+			if (empty($lbpbp_update_plugins_ts[$this->namespace]) || !is_array($lbpbp_update_plugins_ts[$this->namespace])) {
+				$lbpbp_update_plugins_ts[$this->namespace] = [];
 			}
 
-			// Timestamps saving
-			add_action('init', [$this, 'timestamps']);
+			// Namespace started
+			$firstOne = true;
 		}
 
 		// Check last update check
-		$timestamp = empty($lbpbp_update_plugins_ts[$this->key])? 0 : (int) $lbpbp_update_plugins_ts[$this->key];
+		$timestamp = empty($lbpbp_update_plugins_ts[$this->namespace][$this->key])? 0 : (int) $lbpbp_update_plugins_ts[$this->namespace][$this->key];
 		if (!empty($timestamp) && time() < $timestamp + self::INTERVAL_UPDATE_CHECK + self::INTERVAL_UPDATE_CHECK_RAND) {
 			return;
 		}
 
-		// Update check
-		$lbpbp_update_plugins_ts[$this->key] = time() + rand(0, self::INTERVAL_UPDATE_CHECK_RAND);
+		// Update timestamp to avoid more checks
+		$rand = rand(0, self::INTERVAL_UPDATE_CHECK_RAND);
+		$lbpbp_update_plugins_ts[$this->namespace][$this->key] = time() + $rand;
+
+		// Save only for the first one
+		if ($firstOne) {
+			add_action('init', [$this, 'timestamps']);
+		}
 
 		// Set scheduling
-		// ..
-
-		/* if (!wp_next_scheduled('pbp_update_plugins_'.$this->repo)) {
-			wp_schedule_event(time(), 'hourly', 'checkUpdates');
-		} */
+		if (!wp_next_scheduled($hook)) {
+			wp_schedule_single_event(time() + $rand, $hook);
+		}
 	}
 
 
@@ -315,14 +338,14 @@ return;
 		$time = time();
 
 		// Clean outdated
-		foreach ($lbpbp_update_plugins_ts as $key => $timestamp) {
+		foreach ($lbpbp_update_plugins_ts[$this->namespace] as $key => $timestamp) {
 			if ($key != $this->key && $time >= $timestamp + self::INTERVAL_UPDATE_CHECK + self::INTERVAL_UPDATE_CHECK_RAND) {
-				unset($lbpbp_update_plugins_ts[$key]);
+				unset($lbpbp_update_plugins_ts[$this->namespace][$key]);
 			}
 		}
 
 		// Update once for al PBP plugins
-		update_option(self::TIMESTAMP_OPTION_NAME, @json_encode($lbpbp_update_plugins_ts), true);
+		update_option(self::TIMESTAMP_OPTION_NAME.'_'.$this->namespace, @json_encode($lbpbp_update_plugins_ts[$this->namespace]), true);
 	}
 
 
@@ -333,7 +356,7 @@ return;
 	private function checkUpdates() {
 
 		// Compose URL
-		$url = str_replace('%repo%', $this->repo, 'https://raw.githubusercontent.com/littlebizzy/%repo%/master/releases.json');
+		$url = str_replace('%repo%', $this->repo, 'https://raw.githubusercontent.com/%repo%/master/releases.json');
 
 		// Request attempt
 		$request = wp_remote_get($url.'?'.rand(0, 99999));
@@ -410,13 +433,13 @@ return;
 	private function upgrade($upgrade = null) {
 
 		// Option name
-		$option = $this->prefix.'_update_plugins';
+		$name = $this->prefix.'_update_plugins_'.$this->namespace;
 
 		// Update
 		if (isset($upgrade)) {
 
 			// Save plugins data
-			update_option($option, @json_encode($upgrade), false);
+			update_option($name, @json_encode($upgrade), false);
 
 		// Retrieve
 		} else {
@@ -428,7 +451,7 @@ return;
 			}
 
 			// Retrieve plugins list
-			$value = @json_decode(get_option($option), true);
+			$value = @json_decode(get_option($name), true);
 			if (empty($value) || !is_array($value)) {
 				$value = [];
 			}
