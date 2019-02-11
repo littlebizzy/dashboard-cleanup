@@ -502,6 +502,9 @@ return $default;
 		$plugin = $this->key;
 		$slug = dirname($this->key);
 
+		// Check mu plugin
+		$is_mu = (false !== strpos(__FILE__, WPMU_PLUGIN_DIR));
+
 		/* WP Core wp_update_plugins function (modified) */
 
 		$plugin = plugin_basename( sanitize_text_field( wp_unslash( $plugin ) ) );
@@ -539,7 +542,7 @@ $debug = true;
 			require_once ABSPATH.'wp-admin/includes/plugin.php';
 		}
 
-		$plugin_data          = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin );
+		$plugin_data          = get_plugin_data( ( $is_mu ? WPMU_PLUGIN_DIR :  WP_PLUGIN_DIR ) . '/' . $plugin );
 		$status['plugin']     = $plugin;
 		$status['pluginName'] = $plugin_data['Name'];
 
@@ -552,39 +555,65 @@ $debug = true;
 		require_once ABSPATH.'wp-admin/includes/class-wp-upgrader.php';
 		require_once ABSPATH.'wp-admin/includes/class-wp-filesystem-base.php';
 
-		// Update plugins data
-		wp_update_plugins();
+		// Regular plugins
+		if (!$is_mu) {
 
-		// Check current plugin info
-		$current = get_site_transient('update_plugins');
-		if (!isset($current->response[$this->key])) {
+			// Update plugins data
+			wp_update_plugins();
 
-			// Set this plugin data
-			$current->response[$this->key] = (object) [
-				'slug' 				=> dirname($this->key),
-				'plugin' 			=> $this->key,
-				'new_version' 		=> $upgrade['version'],
-				'package' 			=> $upgrade['package'],
-				'upgrade_notice' 	=> $upgrade['notice'],
-				'icons'				=> $upgrade['icon'],
-				'banners'			=> $upgrade['banner'],
-				'tested'			=> $upgrade['tested'],
-				'requires_php'		=> $upgrade['requires_php'],
-			];
+			// Check current plugin info
+			$current = get_site_transient('update_plugins');
+			if (!isset($current->response[$this->key])) {
 
-			// And update
-			set_site_transient('update_plugins', $current);
+				// Set this plugin data
+				$current->response[$this->key] = (object) [
+					'slug' 				=> dirname($this->key),
+					'plugin' 			=> $this->key,
+					'new_version' 		=> $upgrade['version'],
+					'package' 			=> $upgrade['package'],
+					'upgrade_notice' 	=> $upgrade['notice'],
+					'icons'				=> $upgrade['icon'],
+					'banners'			=> $upgrade['banner'],
+					'tested'			=> $upgrade['tested'],
+					'requires_php'		=> $upgrade['requires_php'],
+				];
+
+				// And update
+				set_site_transient('update_plugins', $current);
+			}
+
+			$skin     = new \WP_Ajax_Upgrader_Skin();
+			$upgrader = new \Plugin_Upgrader( $skin );
+			$result   = $upgrader->bulk_upgrade( array( $plugin ) );
+
+		// mu-plugins
+		} else {
+
+			$skin     = new \WP_Ajax_Upgrader_Skin();
+			$upgrader = new \Plugin_Upgrader( $skin );
+			$results  = $upgrader->run(array(
+				'package' => $upgrade['package'],
+				'destination' => WPMU_PLUGIN_DIR,
+				'clear_destination' => true,
+				'clear_working' => true,
+				'is_multi' => true,
+				'hook_extra' => array(
+					'plugin' => $plugin
+				)
+			) );
+
+			// Result
+			$result = [];
+			$result[$plugin] = $results;
 		}
-
-		$skin     = new \WP_Ajax_Upgrader_Skin();
-		$upgrader = new \Plugin_Upgrader( $skin );
-		$result   = $upgrader->bulk_upgrade( array( $plugin ) );
 
 		// Debug info
 		if ($debug) {
 			$status['debug'] = $skin->get_upgrade_messages();
 		}
 
+
+		/* Results */
 
 		// Check error result
 		if ( is_wp_error( $skin->result ) ) {
@@ -619,6 +648,8 @@ $debug = true;
 
 		// Check result data
 		} elseif ( is_array( $result ) && ! empty( $result[ $plugin ] ) ) {
+
+			// Plugin result
 			$plugin_update_data = current( $result );
 
 			/*
@@ -643,31 +674,34 @@ $debug = true;
 				return false;
 			}
 
-			$plugin_data = get_plugins( '/' . $result[ $plugin ]['destination_name'] );
-			$plugin_data = reset( $plugin_data );
+			if (!$is_mu) {
 
-			if ( $plugin_data['Version'] ) {
-				$status['newVersion'] = sprintf( __( 'Version %s' ), $plugin_data['Version'] );
+				// Debug point
+				//error_log(print_r($result, true));
+
+				$plugin_data = get_plugins( '/' . $result[ $plugin ]['destination_name'] );
+				$plugin_data = reset( $plugin_data );
+
+				if ( $plugin_data['Version'] ) {
+					$status['newVersion'] = sprintf( __( 'Version %s' ), $plugin_data['Version'] );
+				}
+
+				// Deactivate current plugin
+				deactivate_plugins($this->key, true);
+
+				// Activate installed plugin
+				activate_plugin($result[$plugin]['destination_name'].'/'.basename($this->key));
+
+				// Remove WP upgrade data
+				$current = get_site_transient('update_plugins');
+				unset($current->response[$this->key]);
+				set_site_transient('update_plugins', $current);
 			}
 
 			// Debug point
 			if ($debug) {
 				error_log(print_r($status, true));
 			}
-
-// Debug point
-//error_log(print_r($result, true));
-
-			// Deactivate current plugin
-			deactivate_plugins($this->key, true);
-
-			// Activate installed plugin
-			activate_plugin($result[$plugin]['destination_name'].'/'.basename($this->key));
-
-			// Remove WP upgrade data
-			$current = get_site_transient('update_plugins');
-			unset($current->response[$this->key]);
-			set_site_transient('update_plugins', $current);
 
 			// Remove upgrade data
 			$this->upgrade([]);
