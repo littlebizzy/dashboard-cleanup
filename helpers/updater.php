@@ -79,9 +79,7 @@ class Updater {
 
 		// Check repo for scheduling
 		if (!empty($this->repo)) {
-
-			// Schedule check
-			$this->scheduleCheck();
+			$this->scheduling();
 		}
 	}
 
@@ -201,11 +199,6 @@ class Updater {
 		// Back to JSON
 		$response['body'] = @json_encode($payload);
 
-		// Check automatic update
-		if (defined('AUTOMATIC_UPDATE_PLUGINS') && AUTOMATIC_UPDATE_PLUGINS) {
-			$this->scheduleInstall();
-		}
-
 		// Done
 		return $response;
 	}
@@ -273,7 +266,7 @@ return $default;
 	/**
 	 * Schedule update checks
 	 */
-	private function scheduleCheck() {
+	private function scheduling() {
 
 		// Set cron hook
 		$hook = $this->namespace.'_'.$this->prefix.'_update_plugin_check';
@@ -412,6 +405,13 @@ return $default;
 			// Save data
 			$this->upgrade($upgrade);
 
+			// Check automatic update
+			if (defined('AUTOMATIC_UPDATE_PLUGINS') && AUTOMATIC_UPDATE_PLUGINS) {
+				if ($this->install()) {
+					$this->upgrade([]);
+				}
+			}
+
 		// No plugin info
 		} else {
 
@@ -489,23 +489,6 @@ return $default;
 
 		// Done
 		return $key;
-	}
-
-
-
-	/**
-	 * Schedule plugin install
-	 */
-	private function scheduleInstall() {
-
-		// Set cron hook
-		$hook = $this->namespace.'_'.$this->prefix.'_update_plugin_install';
-		add_action($hook, [$this, 'install']);
-
-		// Set scheduling
-		if (!wp_next_scheduled($hook)) {
-			wp_schedule_single_event(time() + rand(0, 30), $hook);
-		}
 	}
 
 
