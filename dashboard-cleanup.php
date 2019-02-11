@@ -21,7 +21,7 @@ namespace LittleBizzy\DashboardCleanup;
 const FILE = __FILE__;
 const PREFIX = 'dshcln';
 const VERSION = '1.2.0';
-const REPO = 'dashboard-cleanup';
+const REPO = 'littlebizzy/dashboard-cleanup';
 
 // Boot
 require_once dirname(FILE).'/helpers/boot.php';
