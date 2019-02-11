@@ -591,16 +591,13 @@ $debug = true;
 
 			$skin     = new \WP_Ajax_Upgrader_Skin();
 			$upgrader = new \Plugin_Upgrader( $skin );
-			$results  = $upgrader->run(array(
+			$results  = $upgrader->run([
 				'package' => $upgrade['package'],
-				'destination' => WPMU_PLUGIN_DIR,
+				'destination' => WPMU_PLUGIN_DIR.'/'.dirname($this->key),
 				'clear_destination' => true,
 				'clear_working' => true,
-				'is_multi' => true,
-				'hook_extra' => array(
-					'plugin' => $plugin
-				)
-			) );
+				'is_multi' => false
+			]);
 
 			// Result
 			$result = [];
