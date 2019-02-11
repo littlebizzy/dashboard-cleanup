@@ -501,7 +501,7 @@ return $default;
 		$plugin = $this->key;
 		$slug = dirname($this->key);
 
-		/* WP Core wp_update_plugins function */
+		/* WP Core wp_update_plugins function (modified) */
 
 		$plugin = plugin_basename( sanitize_text_field( wp_unslash( $plugin ) ) );
 
@@ -512,9 +512,21 @@ return $default;
 			'newVersion' => '',
 		);
 
+		// Debug mode
+		$debug = defined('WP_DEBUG') && WP_DEBUG;
+
 		if ( ! current_user_can( 'update_plugins' ) || 0 !== validate_file( $plugin ) ) {
+
+			// Set message
 			$status['errorMessage'] = __( 'Sorry, you are not allowed to update plugins for this site.');
-			error_log(print_r($status, true));return;
+
+			// Debug point
+			if ($debug) {
+				error_log(print_r($status, true));
+			}
+
+			// Unallowed
+			return false;
 		}
 
 		$plugin_data          = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin );
@@ -533,19 +545,46 @@ return $default;
 		$upgrader = new Plugin_Upgrader( $skin );
 		$result   = $upgrader->bulk_upgrade( array( $plugin ) );
 
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		// Debug info
+		if ($debug) {
 			$status['debug'] = $skin->get_upgrade_messages();
 		}
 
+
+
+		// Check error result
 		if ( is_wp_error( $skin->result ) ) {
+
+			// Set error codes
 			$status['errorCode']    = $skin->result->get_error_code();
 			$status['errorMessage'] = $skin->result->get_error_message();
-			error_log(print_r($status, true));return;
 
+			// Debug point
+			if ($debug) {
+				error_log(print_r($status, true));
+			}
+
+			// Error
+			return false;
+
+
+
+		// Check process errors
 		} elseif ( $skin->get_errors()->get_error_code() ) {
-			$status['errorMessage'] = $skin->get_error_messages();
-			error_log(print_r($status, true));return;
 
+			// Set message
+			$status['errorMessage'] = $skin->get_error_messages();
+
+			// Debug point
+			if ($debug) {
+				error_log(print_r($status, true));
+			}
+
+			// Error
+			return false;
+
+
+		// Check result data
 		} elseif ( is_array( $result ) && ! empty( $result[ $plugin ] ) ) {
 			$plugin_update_data = current( $result );
 
@@ -558,8 +597,17 @@ return $default;
 			 * For now, surface some sort of error here.
 			 */
 			if ( true === $plugin_update_data ) {
+
+				// Set message
 				$status['errorMessage'] = __( 'Plugin update failed.' );
-				error_log(print_r($status, true));return;
+
+				// Debug point
+				if ($debug) {
+					error_log(print_r($status, true));
+				}
+
+				// Error
+				return false;
 			}
 
 			$plugin_data = get_plugins( '/' . $result[ $plugin ]['destination_name'] );
@@ -568,11 +616,23 @@ return $default;
 			if ( $plugin_data['Version'] ) {
 				$status['newVersion'] = sprintf( __( 'Version %s' ), $plugin_data['Version'] );
 			}
-			error_log(print_r($status, true));return;
 
+			// Debug point
+			if ($debug) {
+				error_log(print_r($status, true));
+			}
+
+			// Done
+			return true;
+
+
+		// No result
 		} elseif ( false === $result ) {
+
+			// Globals
 			global $wp_filesystem;
 
+			// Set messages
 			$status['errorCode']    = 'unable_to_connect_to_filesystem';
 			$status['errorMessage'] = __( 'Unable to connect to the filesystem. Please confirm your credentials.' );
 
@@ -581,11 +641,22 @@ return $default;
 				$status['errorMessage'] = esc_html( $wp_filesystem->errors->get_error_message() );
 			}
 
-			error_log(print_r($status, true));return;
+			// Debug point
+			if ($debug) {
+				error_log(print_r($status, true));
+			}
+
+			// Error
+			return false;
 		}
 
 		// An unhandled error occurred.
-		error_log(__('Plugin update failed.'));
+		if ($debug) {
+			error_log(__('Plugin update failed.'));
+		}
+
+		// Error
+		return false;
 	}
 
 
