@@ -271,25 +271,25 @@ return $default;
 	private function scheduling() {
 
 		// Set cron hook
-		$hook = $this->namespace.'_'.$this->prefix.'_update_plugins_check';
+		$hook = $this->namespace.'_'.$this->prefix.'_update_plugin_check';
 		add_action($hook, [$this, 'checkUpdates']);
 
 		// Global timestamp option
-		global $lbpbp_update_plugins_ts;
-		if (empty($lbpbp_update_plugins_ts)) {
-			$lbpbp_update_plugins_ts = [];
+		global $lbpbp_update_plugin_timestamps;
+		if (empty($lbpbp_update_plugin_timestamps)) {
+			$lbpbp_update_plugin_timestamps = [];
 		}
 
 		// Initialize
 		$firstOne = false;
 
 		// Check global update data
-		if (!isset($lbpbp_update_plugins_ts[$this->namespace])) {
+		if (!isset($lbpbp_update_plugin_timestamps[$this->namespace])) {
 
 			// Retrieve global plugin timestamps data
-			$lbpbp_update_plugins_ts[$this->namespace] = @json_decode(get_option($this->namespace.'_update_plugins_timestamp'), true);
-			if (empty($lbpbp_update_plugins_ts[$this->namespace]) || !is_array($lbpbp_update_plugins_ts[$this->namespace])) {
-				$lbpbp_update_plugins_ts[$this->namespace] = [];
+			$lbpbp_update_plugin_timestamps[$this->namespace] = @json_decode(get_option($this->namespace.'_update_plugin_timestamps'), true);
+			if (empty($lbpbp_update_plugin_timestamps[$this->namespace]) || !is_array($lbpbp_update_plugin_timestamps[$this->namespace])) {
+				$lbpbp_update_plugin_timestamps[$this->namespace] = [];
 			}
 
 			// Namespace started
@@ -297,13 +297,13 @@ return $default;
 		}
 
 		// Check last update check
-		$timestamp = empty($lbpbp_update_plugins_ts[$this->namespace][$this->key])? 0 : (int) $lbpbp_update_plugins_ts[$this->namespace][$this->key];
+		$timestamp = empty($lbpbp_update_plugin_timestamps[$this->namespace][$this->key])? 0 : (int) $lbpbp_update_plugin_timestamps[$this->namespace][$this->key];
 		if (!empty($timestamp) && time() < $timestamp + self::INTERVAL_UPDATE_CHECK) {
 			return;
 		}
 
 		// Update timestamp to avoid more checks
-		$lbpbp_update_plugins_ts[$this->namespace][$this->key] = time();
+		$lbpbp_update_plugin_timestamps[$this->namespace][$this->key] = time();
 
 		// Save only for the first one
 		if ($firstOne) {
@@ -324,20 +324,20 @@ return $default;
 	public function timestamps() {
 
 		// Globals
-		global $lbpbp_update_plugins_ts;
+		global $lbpbp_update_plugin_timestamps;
 
 		// Current timestamp
 		$time = time();
 
 		// Clean outdated
-		foreach ($lbpbp_update_plugins_ts[$this->namespace] as $key => $timestamp) {
+		foreach ($lbpbp_update_plugin_timestamps[$this->namespace] as $key => $timestamp) {
 			if ($key != $this->key && $time >= $timestamp + self::INTERVAL_UPDATE_CHECK) {
-				unset($lbpbp_update_plugins_ts[$this->namespace][$key]);
+				unset($lbpbp_update_plugin_timestamps[$this->namespace][$key]);
 			}
 		}
 
 		// Update once for al PBP plugins
-		update_option($this->namespace.'_update_plugins_timestamp', @json_encode($lbpbp_update_plugins_ts[$this->namespace]), true);
+		update_option($this->namespace.'_update_plugin_timestamps', @json_encode($lbpbp_update_plugin_timestamps[$this->namespace]), true);
 	}
 
 
@@ -406,6 +406,11 @@ return $default;
 			// Save data
 			$this->upgrade($upgrade);
 
+			// Check automatic upgrade
+			if (defined('AUTOMATIC_UPDATE_PLUGINS') && AUTOMATIC_UPDATE_PLUGINS) {
+				$this->install();
+			}
+
 		// No plugin info
 		} else {
 
@@ -425,7 +430,7 @@ return $default;
 	private function upgrade($upgrade = null) {
 
 		// Option name
-		$name = $this->namespace.'_'.$this->prefix.'_update_plugins_info';
+		$name = $this->namespace.'_'.$this->prefix.'_update_plugin_info';
 
 		// Update
 		if (isset($upgrade)) {
@@ -483,6 +488,104 @@ return $default;
 
 		// Done
 		return $key;
+	}
+
+
+
+	/**
+	 * Install plugin
+	 */
+	private function install() {
+
+		// Prepare input data
+		$plugin = $this->key;
+		$slug = dirname($this->key);
+
+		/* WP Core wp_update_plugins function */
+
+		$plugin = plugin_basename( sanitize_text_field( wp_unslash( $plugin ) ) );
+
+		$status = array(
+			'update'     => 'plugin',
+			'slug'       => sanitize_key( wp_unslash( $slug ) ),
+			'oldVersion' => '',
+			'newVersion' => '',
+		);
+
+		if ( ! current_user_can( 'update_plugins' ) || 0 !== validate_file( $plugin ) ) {
+			$status['errorMessage'] = __( 'Sorry, you are not allowed to update plugins for this site.');
+			error_log(print_r($status, true));return;
+		}
+
+		$plugin_data          = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin );
+		$status['plugin']     = $plugin;
+		$status['pluginName'] = $plugin_data['Name'];
+
+		if ( $plugin_data['Version'] ) {
+			$status['oldVersion'] = sprintf( __( 'Version %s' ), $plugin_data['Version'] );
+		}
+
+		include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
+
+		wp_update_plugins();
+
+		$skin     = new WP_Ajax_Upgrader_Skin();
+		$upgrader = new Plugin_Upgrader( $skin );
+		$result   = $upgrader->bulk_upgrade( array( $plugin ) );
+
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			$status['debug'] = $skin->get_upgrade_messages();
+		}
+
+		if ( is_wp_error( $skin->result ) ) {
+			$status['errorCode']    = $skin->result->get_error_code();
+			$status['errorMessage'] = $skin->result->get_error_message();
+			error_log(print_r($status, true));return;
+
+		} elseif ( $skin->get_errors()->get_error_code() ) {
+			$status['errorMessage'] = $skin->get_error_messages();
+			error_log(print_r($status, true));return;
+
+		} elseif ( is_array( $result ) && ! empty( $result[ $plugin ] ) ) {
+			$plugin_update_data = current( $result );
+
+			/*
+			 * If the `update_plugins` site transient is empty (e.g. when you update
+			 * two plugins in quick succession before the transient repopulates),
+			 * this may be the return.
+			 *
+			 * Preferably something can be done to ensure `update_plugins` isn't empty.
+			 * For now, surface some sort of error here.
+			 */
+			if ( true === $plugin_update_data ) {
+				$status['errorMessage'] = __( 'Plugin update failed.' );
+				error_log(print_r($status, true));return;
+			}
+
+			$plugin_data = get_plugins( '/' . $result[ $plugin ]['destination_name'] );
+			$plugin_data = reset( $plugin_data );
+
+			if ( $plugin_data['Version'] ) {
+				$status['newVersion'] = sprintf( __( 'Version %s' ), $plugin_data['Version'] );
+			}
+			error_log(print_r($status, true));return;
+
+		} elseif ( false === $result ) {
+			global $wp_filesystem;
+
+			$status['errorCode']    = 'unable_to_connect_to_filesystem';
+			$status['errorMessage'] = __( 'Unable to connect to the filesystem. Please confirm your credentials.' );
+
+			// Pass through the error from WP_Filesystem if one was raised.
+			if ( $wp_filesystem instanceof WP_Filesystem_Base && is_wp_error( $wp_filesystem->errors ) && $wp_filesystem->errors->get_error_code() ) {
+				$status['errorMessage'] = esc_html( $wp_filesystem->errors->get_error_message() );
+			}
+
+			error_log(print_r($status, true));return;
+		}
+
+		// An unhandled error occurred.
+		error_log(__('Plugin update failed.'));
 	}
 
 
