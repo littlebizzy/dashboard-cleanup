@@ -664,6 +664,11 @@ $debug = true;
 			// Activate installed plugin
 			activate_plugin($result[$plugin]['destination_name'].'/'.basename($this->key));
 
+			// Remove WP upgrade data
+			$current = get_site_transient('update_plugins');
+			unset($current->response[$this->key]);
+			set_site_transient('update_plugins', $current);
+
 			// Remove upgrade data
 			$this->upgrade([]);
 
