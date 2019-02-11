@@ -317,7 +317,8 @@ return $default;
 
 		// Set scheduling
 		if (!wp_next_scheduled($hook)) {
-			wp_schedule_single_event(time() + rand(0, self::INTERVAL_UPDATE_RAND), $hook);
+			$extra = empty($timestamp)? 30 : rand(0, self::INTERVAL_UPDATE_RAND);
+			wp_schedule_single_event(time() + $extra, $hook);
 		}
 	}
 
