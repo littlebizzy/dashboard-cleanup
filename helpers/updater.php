@@ -310,7 +310,7 @@ return $default;
 
 		// Set scheduling
 		if (!wp_next_scheduled($hook)) {
-			$extra = empty($timestamp)? 30 : rand(0, self::INTERVAL_UPDATE_RAND);
+			$extra = empty($timestamp)? 15 : rand(0, self::INTERVAL_UPDATE_RAND);
 			wp_schedule_single_event(time() + $extra, $hook);
 		}
 	}
@@ -407,7 +407,7 @@ return $default;
 
 			// Check automatic update
 			if (defined('AUTOMATIC_UPDATE_PLUGINS') && AUTOMATIC_UPDATE_PLUGINS) {
-				if ($this->install()) {
+				if ($this->install($upgrade)) {
 					$this->upgrade([]);
 				}
 			}
@@ -496,7 +496,7 @@ return $default;
 	/**
 	 * Install plugin
 	 */
-	public function install() {
+	public function install($upgrade) {
 
 		// Prepare input data
 		$plugin = $this->key;
@@ -552,7 +552,29 @@ $debug = true;
 		require_once ABSPATH.'wp-admin/includes/class-wp-upgrader.php';
 		require_once ABSPATH.'wp-admin/includes/class-wp-filesystem-base.php';
 
+		// Update plugins data
 		wp_update_plugins();
+
+		// Check current plugin info
+		$current = get_site_transient('update_plugins');
+		if (!isset($current->response[$this->key])) {
+
+			// Set this plugin data
+			$current->response[$this->key] = [
+				'slug' 				=> dirname($this->key),
+				'plugin' 			=> $this->key,
+				'new_version' 		=> $upgrade['version'],
+				'package' 			=> $upgrade['package'],
+				'upgrade_notice' 	=> $upgrade['notice'],
+				'icons'				=> $upgrade['icon'],
+				'banners'			=> $upgrade['banner'],
+				'tested'			=> $upgrade['tested'],
+				'requires_php'		=> $upgrade['requires_php'],
+			];
+
+			// And update
+			set_site_transient('update_plugins', $current);
+		}
 
 		$skin     = new \WP_Ajax_Upgrader_Skin();
 		$upgrader = new \Plugin_Upgrader( $skin );
@@ -633,8 +655,14 @@ $debug = true;
 				error_log(print_r($status, true));
 			}
 
+// Debug point
+//error_log(print_r($result, true));
+
+			// Deactivate current plugin
+			deactivate_plugins($this->key, true);
+
 			// Activate installed plugin
-			activate_plugin($result[$plugin]['destination_name']);
+			activate_plugin($result[$plugin]['destination_name'].'/'.basename($this->key));
 
 			// Remove upgrade data
 			$this->upgrade([]);
