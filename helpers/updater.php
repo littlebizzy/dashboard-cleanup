@@ -560,7 +560,7 @@ $debug = true;
 		if (!isset($current->response[$this->key])) {
 
 			// Set this plugin data
-			$current->response[$this->key] = [
+			$current->response[$this->key] = (object) [
 				'slug' 				=> dirname($this->key),
 				'plugin' 			=> $this->key,
 				'new_version' 		=> $upgrade['version'],
