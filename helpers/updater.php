@@ -28,9 +28,9 @@ class Updater {
 
 
 	/**
-	 * Random time added to the update interval
+	 * Random time added to the cron hook to avoid multiple requests
 	 */
-	const INTERVAL_UPDATE_CHECK_RAND  = 3600; // 1 hour
+	const INTERVAL_UPDATE_RAND  = 3600; // 1 hour
 
 
 
@@ -52,7 +52,7 @@ class Updater {
 
 
 	/**
-	 * Namespace main directory
+	 * Namespace primary directory
 	 */
 	private $namespace;
 
@@ -305,13 +305,12 @@ return $default;
 
 		// Check last update check
 		$timestamp = empty($lbpbp_update_plugins_ts[$this->namespace][$this->key])? 0 : (int) $lbpbp_update_plugins_ts[$this->namespace][$this->key];
-		if (!empty($timestamp) && time() < $timestamp + self::INTERVAL_UPDATE_CHECK + self::INTERVAL_UPDATE_CHECK_RAND) {
+		if (!empty($timestamp) && time() < $timestamp + self::INTERVAL_UPDATE_CHECK) {
 			return;
 		}
 
 		// Update timestamp to avoid more checks
-		$rand = rand(0, self::INTERVAL_UPDATE_CHECK_RAND);
-		$lbpbp_update_plugins_ts[$this->namespace][$this->key] = time() + $rand;
+		$lbpbp_update_plugins_ts[$this->namespace][$this->key] = time();
 
 		// Save only for the first one
 		if ($firstOne) {
@@ -320,7 +319,7 @@ return $default;
 
 		// Set scheduling
 		if (!wp_next_scheduled($hook)) {
-			wp_schedule_single_event(time() + $rand, $hook);
+			wp_schedule_single_event(time() + rand(0, self::INTERVAL_UPDATE_RAND), $hook);
 		}
 	}
 
@@ -339,7 +338,7 @@ return $default;
 
 		// Clean outdated
 		foreach ($lbpbp_update_plugins_ts[$this->namespace] as $key => $timestamp) {
-			if ($key != $this->key && $time >= $timestamp + self::INTERVAL_UPDATE_CHECK + self::INTERVAL_UPDATE_CHECK_RAND) {
+			if ($key != $this->key && $time >= $timestamp + self::INTERVAL_UPDATE_CHECK) {
 				unset($lbpbp_update_plugins_ts[$this->namespace][$key]);
 			}
 		}
