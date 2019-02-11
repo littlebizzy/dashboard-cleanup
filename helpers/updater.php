@@ -192,8 +192,8 @@ class Updater {
 			'new_version' 		=> $upgrade['version'],
 			'package' 			=> $upgrade['package'],
 			'upgrade_notice' 	=> $upgrade['notice'],
-			'icons'				=> $upgrade['icons'],
-			'banners'			=> $upgrade['banners'],
+			'icons'				=> $upgrade['icon'],
+			'banners'			=> $upgrade['banner'],
 			'tested'			=> $upgrade['tested'],
 			'requires_php'		=> $upgrade['requires_php'],
 		];
@@ -255,7 +255,7 @@ return $default;
 		// Prepare object
 		$api = (object) $json;
 		$api->slug = dirname($this->key);
-		$api->banners = $upgrade['banners'];
+		$api->banner = $upgrade['banner'];
 		$api->version = $upgrade['version'];
 		$api->download_link = $upgrade['package'];
 
@@ -395,11 +395,11 @@ return $default;
 			$upgrade = [
 				'version' 		=> $greater['version'],
 				'package' 		=> $greater['package'],
-				'readme' 		=> empty($greater['readme'])? '' : $greater['readme'],
-				'notice'		=> empty($greater['notice'])? '' : $greater['notice'],
-				'icons'			=> (empty($greater['icons']) || !is_array($greater['icons']))? [] : $greater['icons'],
-				'banners'		=> (empty($greater['banners']) || !is_array($greater['banners']))? [] : $greater['banners'],
-				'tested'		=> empty($greater['tested'])? '' : $greater['tested'],
+				'readme' 		=> empty($greater['readme'])? 		'' : $greater['readme'],
+				'notice'		=> empty($greater['notice'])? 		'' : $greater['notice'],
+				'icon'			=> empty($greater['icon'])? 		'' : $greater['icon'],
+				'banner'		=> empty($greater['banner'])? 		'' : $greater['banner'],
+				'tested'		=> empty($greater['tested'])? 		'' : $greater['tested'],
 				'requires_php' 	=> empty($greater['requires_php'])? '' : $greater['requires_php'],
 			];
 
