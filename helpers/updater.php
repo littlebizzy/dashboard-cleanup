@@ -539,6 +539,11 @@ $debug = true;
 			return false;
 		}
 
+		// Check plugin data function
+		if (!function_exists('get_plugin_data')) {
+			require_once ABSPATH.'wp-admin/includes/plugin.php';
+		}
+
 		$plugin_data          = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin );
 		$status['plugin']     = $plugin;
 		$status['pluginName'] = $plugin_data['Name'];
@@ -547,12 +552,15 @@ $debug = true;
 			$status['oldVersion'] = sprintf( __( 'Version %s' ), $plugin_data['Version'] );
 		}
 
-		include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
+		// Dependencies
+		require_once ABSPATH.'wp-admin/includes/file.php';
+		require_once ABSPATH.'wp-admin/includes/class-wp-upgrader.php';
+		require_once ABSPATH.'wp-admin/includes/class-wp-filesystem-base.php';
 
 		wp_update_plugins();
 
-		$skin     = new WP_Ajax_Upgrader_Skin();
-		$upgrader = new Plugin_Upgrader( $skin );
+		$skin     = new \WP_Ajax_Upgrader_Skin();
+		$upgrader = new \Plugin_Upgrader( $skin );
 		$result   = $upgrader->bulk_upgrade( array( $plugin ) );
 
 		// Debug info
