@@ -35,14 +35,6 @@ class Updater {
 
 
 	/**
-	 * Parser endpoint for remote readme.txt
-	 */
-	//const README_PARSER_ENDPOINT_URL = 'http://littlebizzy.local/wp-json/readme-parser/v1/parse';
-	const README_PARSER_ENDPOINT_URL = 'https://pauiglesias.com/wp-json/readme-parser/v1/parse';
-
-
-
-	/**
 	 * Plugin constants
 	 */
 	private $file;
@@ -85,16 +77,6 @@ class Updater {
 		if (!empty($this->repo)) {
 			$this->scheduling();
 		}
-
-// Test
-/* $upgrade = $this->upgrade();
-if (!empty($upgrade['readme'])) {
-	$url = add_query_arg('url', $upgrade['readme'], self::README_PARSER_ENDPOINT_URL);
-	$a = wp_remote_retrieve_body(wp_remote_get($url));
-	$a = @json_decode($a, true);
-	print_r($a); die;
-} */
-
 	}
 
 
@@ -253,10 +235,8 @@ return $default;
 			return $default;
 		}
 
-		// Make an API request to parse the readme file
-		$url = add_query_arg('url', $upgrade['readme'], self::README_PARSER_ENDPOINT_URL);
-		$json = wp_remote_retrieve_body(wp_remote_get($url));
-		$json = @json_decode($json, true);
+		// Reads and parse the readme (TODO)
+		$json = false;
 
 		// Check results
 		if (empty($json) || !is_array($json)) {
