@@ -14,13 +14,6 @@ class Updater {
 
 
 	/**
-	 * The common option across PBP plugins to check last plugin timestamp
-	 */
-	const TIMESTAMP_OPTION_NAME = 'lbpbp_update_plugins_ts';
-
-
-
-	/**
 	 * Interval between update checks
 	 */
 	const INTERVAL_UPDATE_CHECK = 6 * 3600; // 6 hours
@@ -30,7 +23,7 @@ class Updater {
 	/**
 	 * Random time added to the cron hook to avoid multiple requests
 	 */
-	const INTERVAL_UPDATE_RAND  = 3600; // 1 hour
+	const INTERVAL_UPDATE_RAND = 10; // 3600; // 1 hour
 
 
 
@@ -278,7 +271,7 @@ return $default;
 	private function scheduling() {
 
 		// Set cron hook
-		$hook = $this->namespace.'_update_plugins_'.dirname($this->key);
+		$hook = $this->namespace.'_'.$this->prefix.'_update_plugins_check';
 		add_action($hook, [$this, 'checkUpdates']);
 
 		// Global timestamp option
@@ -294,7 +287,7 @@ return $default;
 		if (!isset($lbpbp_update_plugins_ts[$this->namespace])) {
 
 			// Retrieve global plugin timestamps data
-			$lbpbp_update_plugins_ts[$this->namespace] = @json_decode(get_option(self::TIMESTAMP_OPTION_NAME.'_'.$this->namespace), true);
+			$lbpbp_update_plugins_ts[$this->namespace] = @json_decode(get_option($this->namespace.'_update_plugins_timestamp'), true);
 			if (empty($lbpbp_update_plugins_ts[$this->namespace]) || !is_array($lbpbp_update_plugins_ts[$this->namespace])) {
 				$lbpbp_update_plugins_ts[$this->namespace] = [];
 			}
@@ -344,7 +337,7 @@ return $default;
 		}
 
 		// Update once for al PBP plugins
-		update_option(self::TIMESTAMP_OPTION_NAME.'_'.$this->namespace, @json_encode($lbpbp_update_plugins_ts[$this->namespace]), true);
+		update_option($this->namespace.'_update_plugins_timestamp', @json_encode($lbpbp_update_plugins_ts[$this->namespace]), true);
 	}
 
 
@@ -352,10 +345,10 @@ return $default;
 	/**
 	 * Check for private repo plugin updates
 	 */
-	private function checkUpdates() {
+	public function checkUpdates() {
 
 		// Compose URL
-		$url = str_replace('%repo%', $this->repo, 'https://raw.githubusercontent.com/%repo%/master/releases.json');
+		$url = str_replace('%repo%', trim($this->repo, '/'), 'https://raw.githubusercontent.com/%repo%/master/releases.json');
 
 		// Request attempt
 		$request = wp_remote_get($url.'?'.rand(0, 99999));
@@ -432,7 +425,7 @@ return $default;
 	private function upgrade($upgrade = null) {
 
 		// Option name
-		$name = $this->prefix.'_update_plugins_'.$this->namespace;
+		$name = $this->namespace.'_'.$this->prefix.'_update_plugins_info';
 
 		// Update
 		if (isset($upgrade)) {
