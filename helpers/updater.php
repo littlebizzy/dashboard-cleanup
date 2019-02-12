@@ -582,27 +582,31 @@ $debug = true;
 				set_site_transient('update_plugins', $current);
 			}
 
-			$skin     = new \WP_Ajax_Upgrader_Skin();
+			// Set filter options for this upgrade
+			add_filter('upgrader_package_options', [$this, 'upgraderOptions']);
+
+			// Single plugin upgrade
+			$skin = new \WP_Ajax_Upgrader_Skin();
 			$upgrader = new \Plugin_Upgrader( $skin );
-			$result   = $upgrader->bulk_upgrade( array( $plugin ) );
+			$results = $upgrader->upgrade($plugin);
 
 		// mu-plugins
 		} else {
 
-			$skin     = new \WP_Ajax_Upgrader_Skin();
+			$skin = new \WP_Ajax_Upgrader_Skin();
 			$upgrader = new \Plugin_Upgrader( $skin );
-			$results  = $upgrader->run([
+			$results = $upgrader->run([
 				'package' => $upgrade['package'],
 				'destination' => WPMU_PLUGIN_DIR.'/'.dirname($this->key),
 				'clear_destination' => true,
 				'clear_working' => true,
 				'is_multi' => false
 			]);
-
-			// Result
-			$result = [];
-			$result[$plugin] = $results;
 		}
+
+		// Result
+		$result = [];
+		$result[$plugin] = $results;
 
 		// Debug info
 		if ($debug) {
@@ -691,8 +695,10 @@ $debug = true;
 
 				// Remove WP upgrade data
 				$current = get_site_transient('update_plugins');
-				unset($current->response[$this->key]);
-				set_site_transient('update_plugins', $current);
+				if (isset($current->response[$this->key])) {
+					unset($current->response[$this->key]);
+					set_site_transient('update_plugins', $current);
+				}
 			}
 
 			// Debug point
@@ -738,6 +744,28 @@ $debug = true;
 
 		// Error
 		return false;
+	}
+
+
+
+	/**
+	 * Set the options for plugin upgrade
+	 */
+	public function upgraderOptions($options) {
+
+		// No multi
+		$options['multi'] = false;
+
+		// Set destination
+		$options['destination'] = rtrim($options['destination'], '/').'/'.dirname($this->key);
+
+error_log(print_r($options, true));
+
+		// No more filters
+		remove_filter('upgrader_package_options', [$this, 'upgraderOptions']);
+
+		// Done
+		return $options;
 	}
 
 
