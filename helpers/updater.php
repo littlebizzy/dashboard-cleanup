@@ -645,7 +645,7 @@ return $default;
 
 
 		// Check result data
-		} elseif ( true === $result ) ) {
+		} elseif ( true === $result ) {
 
 			if (!$is_mu) {
 
