@@ -505,6 +505,7 @@ return $default;
 		// Check mu plugin
 		$is_mu = (false !== strpos(__FILE__, WPMU_PLUGIN_DIR));
 
+
 		/* WP Core wp_update_plugins function (modified) */
 
 		$plugin = plugin_basename( sanitize_text_field( wp_unslash( $plugin ) ) );
@@ -520,7 +521,7 @@ return $default;
 		$debug = defined('WP_DEBUG') && WP_DEBUG;
 
 // Debug point
-$debug = true;
+//$debug = true;
 
 		if ( /* ! current_user_can( 'update_plugins' ) || */ // No user permissions here
 			 0 !== validate_file( $plugin ) ) {
@@ -542,8 +543,8 @@ $debug = true;
 			require_once ABSPATH.'wp-admin/includes/plugin.php';
 		}
 
-		$plugin_data          = get_plugin_data( ( $is_mu ? WPMU_PLUGIN_DIR :  WP_PLUGIN_DIR ) . '/' . $plugin );
-		$status['plugin']     = $plugin;
+		$plugin_data = get_plugin_data( ( $is_mu ? WPMU_PLUGIN_DIR : WP_PLUGIN_DIR ) . '/' . $plugin );
+		$status['plugin'] = $plugin;
 		$status['pluginName'] = $plugin_data['Name'];
 
 		if ( $plugin_data['Version'] ) {
@@ -588,14 +589,14 @@ $debug = true;
 			// Single plugin upgrade
 			$skin = new \WP_Ajax_Upgrader_Skin();
 			$upgrader = new \Plugin_Upgrader( $skin );
-			$results = $upgrader->upgrade($plugin);
+			$result = $upgrader->upgrade($plugin);
 
 		// mu-plugins
 		} else {
 
 			$skin = new \WP_Ajax_Upgrader_Skin();
 			$upgrader = new \Plugin_Upgrader( $skin );
-			$results = $upgrader->run([
+			$result = $upgrader->run([
 				'package' => $upgrade['package'],
 				'destination' => WPMU_PLUGIN_DIR.'/'.dirname($this->key),
 				'clear_destination' => true,
@@ -603,10 +604,6 @@ $debug = true;
 				'is_multi' => false
 			]);
 		}
-
-		// Result
-		$result = [];
-		$result[$plugin] = $results;
 
 		// Debug info
 		if ($debug) {
@@ -648,37 +645,9 @@ $debug = true;
 
 
 		// Check result data
-		} elseif ( is_array( $result ) && ! empty( $result[ $plugin ] ) ) {
-
-			// Plugin result
-			$plugin_update_data = current( $result );
-
-			/*
-			 * If the `update_plugins` site transient is empty (e.g. when you update
-			 * two plugins in quick succession before the transient repopulates),
-			 * this may be the return.
-			 *
-			 * Preferably something can be done to ensure `update_plugins` isn't empty.
-			 * For now, surface some sort of error here.
-			 */
-			if ( true === $plugin_update_data ) {
-
-				// Set message
-				$status['errorMessage'] = __( 'Plugin update failed.' );
-
-				// Debug point
-				if ($debug) {
-					error_log(print_r($status, true));
-				}
-
-				// Error
-				return false;
-			}
+		} elseif ( true === $result ) ) {
 
 			if (!$is_mu) {
-
-				// Debug point
-				//error_log(print_r($result, true));
 
 				$plugin_data = get_plugins( '/' . $result[ $plugin ]['destination_name'] );
 				$plugin_data = reset( $plugin_data );
@@ -686,12 +655,6 @@ $debug = true;
 				if ( $plugin_data['Version'] ) {
 					$status['newVersion'] = sprintf( __( 'Version %s' ), $plugin_data['Version'] );
 				}
-
-				// Deactivate current plugin
-				deactivate_plugins($this->key, true);
-
-				// Activate installed plugin
-				activate_plugin($result[$plugin]['destination_name'].'/'.basename($this->key));
 
 				// Remove WP upgrade data
 				$current = get_site_transient('update_plugins');
@@ -758,8 +721,6 @@ $debug = true;
 
 		// Set destination
 		$options['destination'] = rtrim($options['destination'], '/').'/'.dirname($this->key);
-
-error_log(print_r($options, true));
 
 		// No more filters
 		remove_filter('upgrader_package_options', [$this, 'upgraderOptions']);
