@@ -71,6 +71,9 @@ class Updater {
 		$namespace = explode('\\', __NAMESPACE__);
 		$this->namespace = strtolower($namespace[0]);
 
+		// Set filter options for upgrades
+		add_filter('upgrader_package_options', [$this, 'upgraderOptions']);
+
 		// HTTP Request Args short-circuit
 		add_filter('http_request_args', [$this, 'httpRequestArgs'], PHP_INT_MAX, 2);
 
@@ -590,9 +593,6 @@ return $default;
 			// Update plugins data
 			wp_update_plugins();
 
-			// Set filter options for this upgrade
-			add_filter('upgrader_package_options', [$this, 'upgraderOptions']);
-
 			// Single plugin upgrade
 			$skin = new \WP_Ajax_Upgrader_Skin();
 			$upgrader = new \Plugin_Upgrader( $skin );
@@ -723,14 +723,13 @@ return $default;
 	 */
 	public function upgraderOptions($options) {
 
-		// No multi
-		$options['multi'] = false;
+		// Check this plugin update
+		if (empty($options['hook_extra']['plugin']) || $this->key != $options['hook_extra']['plugin']) {
+			return $options;
+		}
 
-		// Set destination
+		// Set same folder destination
 		$options['destination'] = rtrim($options['destination'], '/').'/'.dirname($this->key);
-
-		// No more filters
-		remove_filter('upgrader_package_options', [$this, 'upgraderOptions']);
 
 		// Done
 		return $options;
