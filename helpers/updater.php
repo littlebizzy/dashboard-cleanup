@@ -405,9 +405,32 @@ return $default;
 			// Save data
 			$this->upgrade($upgrade);
 
+			// Check current plugin info
+			$current = get_site_transient('update_plugins');
+
+			// Set this plugin data
+			$current->response[$this->key] = (object) [
+				'slug' 				=> dirname($this->key),
+				'plugin' 			=> $this->key,
+				'new_version' 		=> $upgrade['version'],
+				'package' 			=> $upgrade['package'],
+				'upgrade_notice' 	=> $upgrade['notice'],
+				'icons'				=> $upgrade['icon'],
+				'banners'			=> $upgrade['banner'],
+				'tested'			=> $upgrade['tested'],
+				'requires_php'		=> $upgrade['requires_php'],
+			];
+
+			// And update
+			set_site_transient('update_plugins', $current);
+
 			// Check automatic update
 			if (defined('AUTOMATIC_UPDATE_PLUGINS') && AUTOMATIC_UPDATE_PLUGINS) {
+
+				// Install attempt
 				if ($this->install($upgrade)) {
+
+					// Clean upgrade data
 					$this->upgrade([]);
 				}
 			}
@@ -566,27 +589,6 @@ return $default;
 
 			// Update plugins data
 			wp_update_plugins();
-
-			// Check current plugin info
-			$current = get_site_transient('update_plugins');
-			if (!isset($current->response[$this->key])) {
-
-				// Set this plugin data
-				$current->response[$this->key] = (object) [
-					'slug' 				=> dirname($this->key),
-					'plugin' 			=> $this->key,
-					'new_version' 		=> $upgrade['version'],
-					'package' 			=> $upgrade['package'],
-					'upgrade_notice' 	=> $upgrade['notice'],
-					'icons'				=> $upgrade['icon'],
-					'banners'			=> $upgrade['banner'],
-					'tested'			=> $upgrade['tested'],
-					'requires_php'		=> $upgrade['requires_php'],
-				];
-
-				// And update
-				set_site_transient('update_plugins', $current);
-			}
 
 			// Set filter options for this upgrade
 			add_filter('upgrader_package_options', [$this, 'upgraderOptions']);
