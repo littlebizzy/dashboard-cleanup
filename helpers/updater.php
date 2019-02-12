@@ -551,6 +551,11 @@ return $default;
 			$status['oldVersion'] = sprintf( __( 'Version %s' ), $plugin_data['Version'] );
 		}
 
+		// Remove previous filters
+		remove_filter('plugins_api', [$this, 'pluginsAPI'], PHP_INT_MAX);
+		remove_filter('http_request_args', [$this, 'httpRequestArgs'], PHP_INT_MAX);
+		remove_filter('http_response', [$this, 'httpResponse'], PHP_INT_MAX);
+
 		// Dependencies
 		require_once ABSPATH.'wp-admin/includes/file.php';
 		require_once ABSPATH.'wp-admin/includes/class-wp-upgrader.php';
