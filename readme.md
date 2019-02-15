@@ -8,6 +8,7 @@ Cleans up the WP Admin backend by disabling various bloat features including nag
 ### Defined Constants
 
     /* Plugin Meta */
+    define('AUTOMATIC_UPDATE_PLUGINS', false);
     define('DISABLE_NAG_NOTICES', true);
     
     /* Dashboard Cleanup Functions */
