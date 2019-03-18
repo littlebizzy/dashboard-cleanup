@@ -53,4 +53,20 @@ final class Woocommerce extends Helpers\Singleton {
 
 
 
+	/**
+	 * Removes footer message `If you like WooCommerce please leave us a...`
+	 */
+	public function footerText($default) {
+
+		// Last minute check
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP_WOOCOMMERCE_FOOTER_TEXT')) {
+			return $default;
+		}
+
+		// Done
+		return false;
+	}
+
+
+
 }

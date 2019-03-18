@@ -41,6 +41,7 @@ final class Core extends Helpers\Singleton {
 			// WooCommerce
 			add_filter('woocommerce_helper_suppress_connect_notice', [$factory->woocommerce(), 'connectStore']);
 			add_filter('woocommerce_show_admin_notice', [$factory->woocommerce(), 'productsBlock'], 10, 2);
+			add_filter('woocommerce_display_admin_footer_text', [$factory->woocommerce(), 'footerText']);
 
 		// Check frontend execution
 		} elseif ($this->plugin->context()->front()) {
