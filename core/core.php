@@ -48,7 +48,7 @@ final class Core extends Helpers\Singleton {
 			// Factory object
 			$factory = new Factory($this->plugin);
 
-			// Remove WP shortcut link before the template load
+			// Remove WP.org logo and shortcut links before template load
 			add_action('template_redirect', [$factory->elements(), 'WPORGShortcutLinks']);
 		}
 	}
