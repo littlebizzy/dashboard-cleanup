@@ -21,7 +21,7 @@ Cleans up the WP Admin backend by disabling various bloat features including nag
     define('DASHBOARD_CLEANUP_THANKS_FOOTER', true); // default = true
     define('DASHBOARD_CLEANUP_WELCOME_TO_WORDPRESS', true); // default = true
     define('DASHBOARD_CLEANUP_WOOCOMMERCE_CONNECT_STORE', true); // default = true
-    define('DASHBOARD_CLEANUP_WOOCOMMERCE_FOOTER_TEXT', true); ;; default = true
+    define('DASHBOARD_CLEANUP_WOOCOMMERCE_FOOTER_TEXT', true); // default = true
     define('DASHBOARD_CLEANUP_WOOCOMMERCE_PRODUCTS_BLOCK', true); // default = true
     define('DASHBOARD_CLEANUP_WP_ORG_SHORTCUT_LINKS', true);  // default = true
 
