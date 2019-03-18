@@ -22,7 +22,8 @@ final class Elements extends Helpers\Singleton {
 	public function footerText($text) {
 
 		// Last minute check
-		if (!$this->plugin->enabled('DASHBOARD_CLEANUP_THANKS_FOOTER')) {
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP') ||
+			!$this->plugin->enabled('DASHBOARD_CLEANUP_THANKS_FOOTER')) {
 			return $text;
 		}
 
@@ -43,7 +44,8 @@ final class Elements extends Helpers\Singleton {
 	public function WPORGShortcutLinks() {
 
 		// Last minute check
-		if (!$this->plugin->enabled('DASHBOARD_CLEANUP_WP_ORG_SHORTCUT_LINKS')) {
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP') ||
+			!$this->plugin->enabled('DASHBOARD_CLEANUP_WP_ORG_SHORTCUT_LINKS')) {
 			return;
 		}
 
@@ -60,7 +62,8 @@ final class Elements extends Helpers\Singleton {
 	public function linkManagerMenu() {
 
 		// Last minute check
-		if (!$this->plugin->enabled('DASHBOARD_CLEANUP_LINK_MANAGER_MENU')) {
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP') ||
+			!$this->plugin->enabled('DASHBOARD_CLEANUP_LINK_MANAGER_MENU')) {
 			return;
 		}
 
@@ -105,7 +108,8 @@ final class Elements extends Helpers\Singleton {
 	public function addPluginTabs($tabs) {
 
 		// Last minute check
-		if (!$this->plugin->enabled('DASHBOARD_CLEANUP_ADD_PLUGIN_TABS')) {
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP') ||
+			!$this->plugin->enabled('DASHBOARD_CLEANUP_ADD_PLUGIN_TABS')) {
 			return $tabs;
 		}
 

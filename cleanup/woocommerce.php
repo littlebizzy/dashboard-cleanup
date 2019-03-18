@@ -22,7 +22,8 @@ final class Woocommerce extends Helpers\Singleton {
 	public function connectStore($default) {
 
 		// Last minute check
-		if (!$this->plugin->enabled('DASHBOARD_CLEANUP_WOOCOMMERCE_CONNECT_STORE')) {
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP') ||
+			!$this->plugin->enabled('DASHBOARD_CLEANUP_WOOCOMMERCE_CONNECT_STORE')) {
 			return $default;
 		}
 
@@ -43,7 +44,8 @@ final class Woocommerce extends Helpers\Singleton {
 		}
 
 		// Last minute check
-		if (!$this->plugin->enabled('DASHBOARD_CLEANUP_WOOCOMMERCE_PRODUCTS_BLOCK')) {
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP') ||
+			!$this->plugin->enabled('DASHBOARD_CLEANUP_WOOCOMMERCE_PRODUCTS_BLOCK')) {
 			return $notice;
 		}
 
@@ -59,7 +61,8 @@ final class Woocommerce extends Helpers\Singleton {
 	public function footerText($default) {
 
 		// Last minute check
-		if (!$this->plugin->enabled('DASHBOARD_CLEANUP_WOOCOMMERCE_FOOTER_TEXT')) {
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP') ||
+			!$this->plugin->enabled('DASHBOARD_CLEANUP_WOOCOMMERCE_FOOTER_TEXT')) {
 			return $default;
 		}
 

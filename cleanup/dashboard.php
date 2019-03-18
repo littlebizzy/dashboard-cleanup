@@ -22,7 +22,8 @@ final class Dashboard extends Helpers\Singleton {
 	public function welcomePanel() {
 
 		// Last minute check
-		if (!$this->plugin->enabled('DASHBOARD_CLEANUP_WELCOME_TO_WORDPRESS')) {
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP') ||
+			!$this->plugin->enabled('DASHBOARD_CLEANUP_WELCOME_TO_WORDPRESS')) {
 			return;
 		}
 
@@ -38,7 +39,8 @@ final class Dashboard extends Helpers\Singleton {
 	public function quickDraft() {
 
 		// Last minute check
-		if (!$this->plugin->enabled('DASHBOARD_CLEANUP_QUICK_DRAFT')) {
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP') ||
+			!$this->plugin->enabled('DASHBOARD_CLEANUP_QUICK_DRAFT')) {
 			return;
 		}
 
@@ -54,7 +56,8 @@ final class Dashboard extends Helpers\Singleton {
 	public function eventsAndNews() {
 
 		// Last minute check
-		if (!$this->plugin->enabled('DASHBOARD_CLEANUP_EVENTS_AND_NEWS')) {
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP') ||
+			!$this->plugin->enabled('DASHBOARD_CLEANUP_EVENTS_AND_NEWS')) {
 			return;
 		}
 
