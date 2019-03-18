@@ -3,7 +3,7 @@
 Cleans up the WP Admin backend by disabling various bloat features including nag notices, Automattic spam, and other outdated and pointless items.
 
 * [Plugin Homepage](https://www.littlebizzy.com/plugins/dashboard-cleanup)
-* [Download Latest Version (ZIP)](https://github.com/littlebizzy/dashboard-cleanup/archive/1.1.0.zip)
+* [Download Latest Version (ZIP)](https://github.com/littlebizzy/dashboard-cleanup/archive/1.1.1.zip)
 * [**Become A LittleBizzy.com Member Today!**](https://www.littlebizzy.com/members)
 
 ### Defined Constants
