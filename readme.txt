@@ -28,6 +28,11 @@ Cleans up the WP Admin backend by disabling various bloat features including nag
 
 == Changelog ==
 
+= 1.1.1 =
+* `DASHBOARD_CLEANUP`
+* `DASHBOARD_CLEANUP_WOOCOMMERCE_FOOTER_TEXT`
+* remove WP.org shortcut link dropdown from frontend (before was only backend)
+
 = 1.1.0 =
 * PBP v1.2.0
 
