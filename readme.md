@@ -1,6 +1,6 @@
 # Dashboard Cleanup
 
-Cleans up the WP Admin backend by disabling various bloat features including nag notices, Automattic spam, and other outdated and pointless items.
+Cleans up the WP Admin backend by disabling various core WP and WC bloat features including Automattic spam, nag notices, tracking, and other items.
 
 * [Plugin Homepage](https://www.littlebizzy.com/plugins/dashboard-cleanup)
 * [Download Latest Version (ZIP)](https://github.com/littlebizzy/dashboard-cleanup/archive/1.1.1.zip)
