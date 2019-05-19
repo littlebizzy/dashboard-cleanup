@@ -24,6 +24,10 @@ Cleans up the WP Admin backend by disabling various core WP and WC bloat feature
     define('DASHBOARD_CLEANUP_WOOCOMMERCE_FOOTER_TEXT', true); // default = true
     define('DASHBOARD_CLEANUP_WOOCOMMERCE_PRODUCTS_BLOCK', true); // default = true
     define('DASHBOARD_CLEANUP_WP_ORG_SHORTCUT_LINKS', true);  // default = true
+    
+### Included Modules
+
+* (n/a)
 
 ### Compatibility
 
