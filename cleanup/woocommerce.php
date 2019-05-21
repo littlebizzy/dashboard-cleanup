@@ -72,4 +72,21 @@ final class Woocommerce extends Helpers\Singleton {
 
 
 
+	/**
+	 * Removes Marketplace Suggestions on `Get More Options` product tab
+	 */
+	public function marketplaceSuggestions($default) {
+
+		// Last minute check
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP') ||
+			!$this->plugin->enabled('DASHBOARD_CLEANUP_WOOCOMMERCE_MARKETPLACE_SUGGESTIONS')) {
+			return $default;
+		}
+
+		// Done
+		return false;
+	}
+
+
+
 }
