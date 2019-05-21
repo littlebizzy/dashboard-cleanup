@@ -43,6 +43,7 @@ final class Core extends Helpers\Singleton {
 			add_filter('woocommerce_show_admin_notice', [$factory->woocommerce(), 'productsBlock'], 10, 2);
 			add_filter('woocommerce_display_admin_footer_text', [$factory->woocommerce(), 'footerText']);
 			add_filter('woocommerce_allow_marketplace_suggestions', [$factory->woocommerce(), 'marketplaceSuggestions']);
+			add_filter('woocommerce_tracker_last_send_time', [$factory->woocommerce(), 'trackerSendTime'], PHP_INT_MAX);
 
 		// Check frontend execution
 		} elseif ($this->plugin->context()->front()) {
@@ -55,6 +56,15 @@ final class Core extends Helpers\Singleton {
 
 			// Removes front search icon/field before template load
 			add_action('template_redirect', [$factory->elements(), 'removeAdminTopSearch'], PHP_INT_MAX);
+
+		// Check cron execution
+		} elseif ($this->plugin->context()->cron()) {
+
+			// Factory object
+			$factory = new Factory($this->plugin);
+
+			// Add also here the last_send_time filter
+			add_filter('woocommerce_tracker_last_send_time', [$factory->woocommerce(), 'trackerSendTime'], PHP_INT_MAX);
 		}
 	}
 

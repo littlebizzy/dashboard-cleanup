@@ -89,4 +89,21 @@ final class Woocommerce extends Helpers\Singleton {
 
 
 
+	/**
+	 * Returns a fake tracker last sent timestamp in order to disable tracking
+	 */
+	public function trackerSendTime($default) {
+
+		// Last minute check
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP') ||
+			!$this->plugin->enabled('DASHBOARD_CLEANUP_WOOCOMMERCE_TRACKER')) {
+			return $default;
+		}
+
+		// Done
+		return strtotime('+1 year');
+	}
+
+
+
 }
