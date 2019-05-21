@@ -131,4 +131,21 @@ final class Elements extends Helpers\Singleton {
 
 
 
+	/**
+	 * Remove top admin bar search icon/field
+	 */
+	public function removeAdminTopSearch() {
+
+		// Last minute check
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP') ||
+			!$this->plugin->enabled('DASHBOARD_CLEANUP_DISABLE_SEARCH')) {
+			return;
+		}
+
+		// Remove WP hook handler
+		remove_action('admin_bar_menu', 'wp_admin_bar_search_menu', 4);
+	}
+
+
+
 }

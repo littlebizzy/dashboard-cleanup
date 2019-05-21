@@ -51,6 +51,9 @@ final class Core extends Helpers\Singleton {
 
 			// Remove WP.org logo and shortcut links before template load
 			add_action('template_redirect', [$factory->elements(), 'WPORGShortcutLinks']);
+
+			// Removes front search icon/field before template load
+			add_action('template_redirect', [$factory->elements(), 'removeAdminTopSearch'], PHP_INT_MAX);
 		}
 	}
 

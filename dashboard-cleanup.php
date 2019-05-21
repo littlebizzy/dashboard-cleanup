@@ -3,7 +3,7 @@
 Plugin Name: Dashboard Cleanup
 Plugin URI: https://www.littlebizzy.com/plugins/dashboard-cleanup
 Description: Cleans up the WP Admin backend by disabling various bloat features including nag notices, Automattic spam, and other outdated and pointless items.
-Version: 1.1.1
+Version: 1.1.2
 Author: LittleBizzy
 Author URI: https://www.littlebizzy.com
 License: GPLv3
@@ -20,7 +20,7 @@ namespace LittleBizzy\DashboardCleanup;
 // Plugin constants
 const FILE = __FILE__;
 const PREFIX = 'dshcln';
-const VERSION = '1.1.1';
+const VERSION = '1.1.2';
 const REPO = 'littlebizzy/dashboard-cleanup';
 
 // Boot
