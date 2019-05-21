@@ -3,16 +3,16 @@
 Cleans up the WP Admin backend by disabling various core WP and WC bloat features including Automattic spam, nag notices, tracking, and other items.
 
 * [Plugin Homepage](https://www.littlebizzy.com/plugins/dashboard-cleanup)
-* [Download Latest Version (ZIP)](https://github.com/littlebizzy/dashboard-cleanup/archive/1.1.1.zip)
+* [Download Latest Version (ZIP)](https://github.com/littlebizzy/dashboard-cleanup/archive/1.1.2.zip)
 * [**Become A LittleBizzy.com Member Today!**](https://www.littlebizzy.com/members)
 
 ### Defined Constants
 
-    /* Plugin Meta */
+    /** Plugin Meta */
     define('AUTOMATIC_UPDATE_PLUGINS', false); // default = false
     define('DISABLE_NAG_NOTICES', true); // default = true
     
-    /* Dashboard Cleanup Functions */
+    /** Dashboard Cleanup Functions */
     define('DASHBOARD_CLEANUP', true); // default = true
     define('DASHBOARD_CLEANUP_ADD_PLUGIN_TABS', true); // default = true
     define('DASHBOARD_CLEANUP_EVENTS_AND_NEWS', true); // default = true
