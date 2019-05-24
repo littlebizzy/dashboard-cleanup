@@ -94,11 +94,17 @@ final class Woocommerce extends Helpers\Singleton {
 	 */
 	public function trackerSendTime($default) {
 
+// Debug point
+//error_log('tracker before');
+
 		// Last minute check
 		if (!$this->plugin->enabled('DASHBOARD_CLEANUP') ||
 			!$this->plugin->enabled('DASHBOARD_CLEANUP_WOOCOMMERCE_TRACKER')) {
 			return $default;
 		}
+
+// Debug point
+//error_log('tracker after');
 
 		// Done
 		return strtotime('+1 year');
