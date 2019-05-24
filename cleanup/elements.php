@@ -103,7 +103,7 @@ final class Elements extends Helpers\Singleton {
 
 
 	/**
-	 * Removes Featured and Favorites tab, and set Popular as the default tab
+	 * Removes Add new plugin Featured and Favorites tab, and set Popular as the default tab
 	 */
 	public function addPluginTabs($tabs) {
 
