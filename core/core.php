@@ -46,8 +46,8 @@ final class Core extends Helpers\Singleton {
 			add_filter('woocommerce_allow_marketplace_suggestions', [$factory->woocommerce(), 'marketplaceSuggestions']);
 			add_filter('woocommerce_tracker_last_send_time', [$factory->woocommerce(), 'trackerSendTime'], PHP_INT_MAX);
 
-			// WC debug
-			//wp_schedule_single_event( time() + 10, 'woocommerce_tracker_send_event', array( true ) );
+// WC debug point
+//wp_schedule_single_event( time() + 10, 'woocommerce_tracker_send_event', array( true ) );
 
 		// Check frontend execution
 		} elseif ($this->plugin->context()->front()) {
