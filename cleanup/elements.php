@@ -189,4 +189,53 @@ final class Elements extends Helpers\Singleton {
 
 
 
+	/**
+	 * Removes Import and Export items from the Tools menu
+	 */
+	public function adminMenu() {
+
+		// Last minute check
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP') ||
+			!$this->plugin->enabled('DASHBOARD_CLEANUP_IMPORT_EXPORT_MENU')) {
+			return;
+		}
+
+		// Globals
+		global $submenu;
+
+		// Check tools menu
+		if (empty($submenu['tools.php']) || !is_array($submenu['tools.php'])) {
+			return;
+		}
+
+		// Enum items
+		foreach ($submenu['tools.php'] as $index => $item) {
+
+			// Check file reference
+			if (!empty($item[2])) {
+
+				// Import
+				if ('import.php' == $item[2]) {
+					$indexImport = $index;
+
+				// Export
+				} elseif ('export.php' == $item[2]) {
+					$indexExport = $index;
+				}
+			}
+		}
+
+		// Late removing
+		if (isset($indexImport)) {
+			unset($submenu['tools.php'][$indexImport]);
+		}
+
+		// Late removing
+		if (isset($indexExport)) {
+			unset($submenu['tools.php'][$indexExport]);
+		}
+	}
+
+
+
 }

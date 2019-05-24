@@ -33,6 +33,7 @@ final class Core extends Helpers\Singleton {
 			add_action('admin_init', [$factory->elements(), 'linkManagerMenu']);
 			add_filter('install_plugins_tabs', [$factory->elements(), 'addPluginTabs']);
 			add_action('current_screen', [$factory->elements(), 'addThemeTabs']);
+			add_action('admin_menu', [$factory->elements(), 'adminMenu'], PHP_INT_MAX);
 
 			// Dashboard
 			add_action('admin_init', [$factory->dashboard(), 'quickDraft']);
