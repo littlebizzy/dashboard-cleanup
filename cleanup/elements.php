@@ -132,6 +132,47 @@ final class Elements extends Helpers\Singleton {
 
 
 	/**
+	 * Removes Add new theme Featured and Favorites tab,
+	 * also sets Popular as the default tab using redirection
+	 */
+	public function addThemeTabs() {
+
+		// Last minute check
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP') ||
+			!$this->plugin->enabled('DASHBOARD_CLEANUP_ADD_THEME_TABS')) {
+			return;
+		}
+
+		// Check current theme install screen
+		$currentScreen = get_current_screen();
+		if (empty($currentScreen) || empty($currentScreen->id) || 'theme-install' != $currentScreen->id) {
+			return;
+		}
+
+		// Redirects for not allowed tabs
+		if (empty($_GET['browse']) || in_array($_GET['browse'], ['featured', 'favorites'])) {
+			$url = admin_url('theme-install.php?browse=popular');
+			wp_redirect($url);
+			die;
+		}
+
+		// Enqueue inline styles
+		add_action('admin_print_styles', [$this, 'styleThemeTabs']);
+	}
+
+
+
+	/**
+	 * Alter the tabs menu hiding elements
+	 */
+	public function styleThemeTabs() {
+		$css = 'ul.filter-links a[data-sort="featured"], ul.filter-links a[data-sort="favorites"] { display: none; }';
+		echo '<style type="text/css">'.$css.'</style>'."\n";
+	}
+
+
+
+	/**
 	 * Remove top admin bar search icon/field
 	 */
 	public function removeAdminTopSearch() {

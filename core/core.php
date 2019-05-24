@@ -32,6 +32,7 @@ final class Core extends Helpers\Singleton {
 			add_action('admin_init', [$factory->elements(), 'WPORGShortcutLinks']);
 			add_action('admin_init', [$factory->elements(), 'linkManagerMenu']);
 			add_filter('install_plugins_tabs', [$factory->elements(), 'addPluginTabs']);
+			add_action('current_screen', [$factory->elements(), 'addThemeTabs']);
 
 			// Dashboard
 			add_action('admin_init', [$factory->dashboard(), 'quickDraft']);
