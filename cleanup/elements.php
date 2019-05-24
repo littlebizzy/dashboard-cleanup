@@ -238,4 +238,39 @@ final class Elements extends Helpers\Singleton {
 
 
 
+	/**
+	 * Removes admin notice for css files on theme editor screen
+	 */
+	public function themeEditor() {
+
+		// Last minute check
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP') ||
+			!$this->plugin->enabled('DASHBOARD_CLEANUP_CSS_ADMIN_NOTICE')) {
+			return;
+		}
+
+		// Check current theme editor screen
+		$currentScreen = get_current_screen();
+		if (empty($currentScreen) || empty($currentScreen->id) || 'theme-editor' != $currentScreen->id) {
+			return;
+		}
+
+		// Check current editing file
+		if (!empty($_GET['file']) && preg_match('/\.css$/', $_GET['file'])) {
+			add_action('admin_print_styles', [$this, 'styleThemeEditor']);
+		}
+	}
+
+
+
+	/**
+	 * Alter the tabs menu hiding elements
+	 */
+	public function styleThemeEditor() {
+		$css = '.wrap > #message.notice-info.notice { display: none; }';
+		echo '<style type="text/css">'.$css.'</style>'."\n";
+	}
+
+
+
 }
