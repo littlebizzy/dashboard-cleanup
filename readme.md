@@ -15,14 +15,20 @@ Cleans up the WP Admin backend by disabling various core WP and WC bloat feature
     /** Dashboard Cleanup Functions */
     define('DASHBOARD_CLEANUP', true); // default = true
     define('DASHBOARD_CLEANUP_ADD_PLUGIN_TABS', true); // default = true
+    define('DASHBOARD_CLEANUP_ADD_THEME_TABS', true); // default = true
+    define('DASHBOARD_CLEANUP_CSS_ADMIN_NOTICE', true); // default = true
+    define('DASHBOARD_CLEANUP_DISABLE_SEARCH', true); // default = true
     define('DASHBOARD_CLEANUP_EVENTS_AND_NEWS', true); // default = true
+    define('DASHBOARD_CLEANUP_IMPORT_EXPORT_MENU', true); // default = true
     define('DASHBOARD_CLEANUP_LINK_MANAGER_MENU', true); // default = true
     define('DASHBOARD_CLEANUP_QUICK_DRAFT', true); // default = true
     define('DASHBOARD_CLEANUP_THANKS_FOOTER', true); // default = true
     define('DASHBOARD_CLEANUP_WELCOME_TO_WORDPRESS', true); // default = true
     define('DASHBOARD_CLEANUP_WOOCOMMERCE_CONNECT_STORE', true); // default = true
     define('DASHBOARD_CLEANUP_WOOCOMMERCE_FOOTER_TEXT', true); // default = true
+    define('DASHBOARD_CLEANUP_WOOCOMMERCE_MARKETPLACE_SUGGESTIONS', true); // default = true
     define('DASHBOARD_CLEANUP_WOOCOMMERCE_PRODUCTS_BLOCK', true); // default = true
+    define('DASHBOARD_CLEANUP_WOOCOMMERCE_TRACKER', true); // default = true
     define('DASHBOARD_CLEANUP_WP_ORG_SHORTCUT_LINKS', true);  // default = true
     
 ### Included Modules
