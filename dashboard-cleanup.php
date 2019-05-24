@@ -2,7 +2,7 @@
 /*
 Plugin Name: Dashboard Cleanup
 Plugin URI: https://www.littlebizzy.com/plugins/dashboard-cleanup
-Description: Cleans up the WP Admin backend by disabling various bloat features including nag notices, Automattic spam, and other outdated and pointless items.
+Description: Cleans up the WP Admin backend by disabling various core WP and WC bloat features including Automattic spam, nag notices, tracking, and other items.
 Version: 1.1.2
 Author: LittleBizzy
 Author URI: https://www.littlebizzy.com
