@@ -90,6 +90,39 @@ final class Woocommerce extends Helpers\Singleton {
 
 
 	/**
+	 * Detect the WC settings page to grayout the suggestions checkbox
+	 */
+	public function grayedoutSuggestions() {
+
+		// Last minute check
+		if (!$this->plugin->enabled('DASHBOARD_CLEANUP') ||
+			!$this->plugin->enabled('DASHBOARD_CLEANUP_WOOCOMMERCE_MARKETPLACE_SUGGESTIONS')) {
+			return;
+		}
+
+		// Check current theme install screen
+		$currentScreen = get_current_screen();
+		if (empty($currentScreen) || empty($currentScreen->id) || 'woocommerce_page_wc-settings' != $currentScreen->id) {
+			return;
+		}
+
+		// Enqueue inline styles
+		add_action('admin_print_footer_scripts', [$this, 'grayedoutSuggestionsScript']);
+	}
+
+
+
+	/**
+	 * Disables suggestions checkbox and add greyout style to wrapper label
+	 */
+	public function grayedoutSuggestionsScript() {
+		$js = "jQuery(document).ready(function($) { $('#woocommerce_show_marketplace_suggestions').prop('disabled', true).closest('label').css({ color: '#ccc', 'font-style': 'italic' }); });";
+		echo '<script type="text/javascript">'.$js.'</script>'."\n";
+	}
+
+
+
+	/**
 	 * Returns a fake tracker last sent timestamp in order to disable tracking
 	 */
 	public function trackerSendTime($default) {

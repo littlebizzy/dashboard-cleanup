@@ -46,6 +46,7 @@ final class Core extends Helpers\Singleton {
 			add_filter('woocommerce_show_admin_notice', [$factory->woocommerce(), 'productsBlock'], 10, 2);
 			add_filter('woocommerce_display_admin_footer_text', [$factory->woocommerce(), 'footerText']);
 			add_filter('woocommerce_allow_marketplace_suggestions', [$factory->woocommerce(), 'marketplaceSuggestions']);
+			add_action('current_screen', [$factory->woocommerce(), 'grayedoutSuggestions']);
 			add_filter('woocommerce_tracker_last_send_time', [$factory->woocommerce(), 'trackerSendTime'], PHP_INT_MAX);
 
 // WC debug point
