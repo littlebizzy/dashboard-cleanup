@@ -116,7 +116,7 @@ final class Woocommerce extends Helpers\Singleton {
 	 * Disables suggestions checkbox and add greyout style to wrapper label
 	 */
 	public function grayedoutSuggestionsScript() {
-		$js = "jQuery(document).ready(function($) { $('#woocommerce_show_marketplace_suggestions').prop('disabled', true).closest('label').css({ color: '#ccc', 'font-style': 'italic' }); });";
+		$js = "jQuery(document).ready(function($) { $('#woocommerce_show_marketplace_suggestions').prop('checked', false).prop('disabled', true).closest('label').css({ color: '#ccc', 'font-style': 'italic' }); });";
 		echo '<script type="text/javascript">'.$js.'</script>'."\n";
 	}
 
