@@ -256,7 +256,7 @@ final class Elements extends Helpers\Singleton {
 		}
 
 		// Check current editing file
-		if (!empty($_GET['file']) && preg_match('/\.css$/', $_GET['file'])) {
+		if (empty($_GET['file']) || preg_match('/\.css$/', $_GET['file'])) {
 			add_action('admin_print_styles', [$this, 'styleThemeEditor']);
 		}
 	}
