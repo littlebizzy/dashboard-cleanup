@@ -17,6 +17,7 @@ Cleans up the WP Admin backend by disabling various core WP and WC bloat feature
     define('DASHBOARD_CLEANUP_ADD_PLUGIN_TABS', true); // default = true
     define('DASHBOARD_CLEANUP_ADD_THEME_TABS', true); // default = true
     define('DASHBOARD_CLEANUP_CSS_ADMIN_NOTICE', true); // default = true
+    // define('DASHBOARD_CLEANUP_DISABLE_DASHICONS', true); // default = true
     define('DASHBOARD_CLEANUP_DISABLE_SEARCH', true); // default = true
     define('DASHBOARD_CLEANUP_EVENTS_AND_NEWS', true); // default = true
     define('DASHBOARD_CLEANUP_IMPORT_EXPORT_MENU', true); // default = true
